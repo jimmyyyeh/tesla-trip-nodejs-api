@@ -6,6 +6,6 @@ if (!module.parent) {
   app.listen(config.port, () => {
     console.log('starting server');
   });
-};
+}
 
 export default app;
