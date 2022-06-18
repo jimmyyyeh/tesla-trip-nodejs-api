@@ -11,6 +11,7 @@ import user from './user.route';
 const router = express.Router();
 
 // 註冊router, 同fastapi app.include_router
+router.use('/', user);
 router.use('/administrative-district', administrativeDistrict);
 router.use('/car', car);
 router.use('/super-charger', charger);
@@ -18,6 +19,5 @@ router.use('/product', product);
 router.use('/qrcode', qrcode);
 router.use('/trip', trip);
 router.use('/tripRate', tripRate);
-router.use('/user', user);
 
 export default router;
