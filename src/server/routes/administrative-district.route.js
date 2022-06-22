@@ -1,9 +1,8 @@
-import express from 'express';
+const express = require('express');
 
 const router = express.Router();
+const controller = require('../controllers/administrative-district.controller')
 
-router.get('/', (req, res) => {
+router.get('/', controller.getAdministrativeDistrict);
 
-})
-
-export default router;
+module.exports = {router};

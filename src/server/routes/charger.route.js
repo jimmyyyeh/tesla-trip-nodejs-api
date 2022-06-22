@@ -1,9 +1,8 @@
-import express from 'express';
+const express = require('express');
 
+const controller = require('../controllers/charger.controller')
 const router = express.Router();
 
-router.get('/', (req, res) => {
+router.get('/', controller.getSuperCharger);
 
-})
-
-export default router;
+module.exports = {router};

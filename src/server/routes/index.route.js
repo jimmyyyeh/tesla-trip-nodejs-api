@@ -1,23 +1,23 @@
-import express from 'express';
-import administrativeDistrict from './administrative-district.route';
-import car from './car.route';
-import charger from './charger.route';
-import product from './product.route';
-import qrcode from './qrcode.route';
-import trip from './trip.route';
-import tripRate from './trip-rate.route';
-import user from './user.route';
+const express = require('express');
+const user = require('./user.route');
+const administrativeDistrict = require('./administrative-district.route');
+const car = require( './car.route');
+const charger = require('./charger.route');
+const product = require('./product.route');
+const qrcode = require('./qrcode.route');
+const trip = require('./trip.route');
+const tripRate = require( './trip-rate.route');
 
 const router = express.Router();
 
 // 註冊router, 同fastapi app.include_router
-router.use('/', user);
-router.use('/administrative-district', administrativeDistrict);
-router.use('/car', car);
-router.use('/super-charger', charger);
-router.use('/product', product);
-router.use('/qrcode', qrcode);
-router.use('/trip', trip);
-router.use('/tripRate', tripRate);
+router.use('/', user.router);
+router.use('/administrative-district', administrativeDistrict.router);
+router.use('/car', car.router);
+router.use('/super-charger', charger.router);
+router.use('/product', product.router);
+router.use('/qrcode', qrcode.router);
+router.use('/trip', trip.router);
+router.use('/tripRate', tripRate.router);
 
-export default router;
+module.exports = {router};

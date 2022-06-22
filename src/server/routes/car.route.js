@@ -1,29 +1,22 @@
-import express from 'express';
+const express = require('express');
+const validation = require('express-joi-validation');
+
+const controller = require('../controllers/car.controller');
+const payloadSchema = require('../../config/payload-schema');
 
 const router = express.Router();
+const validator = validation.createValidator({});
 
-router.get('/car-model', (req, res) => {
+router.get('/car-model', controller.getCarModel);
 
-})
+router.get('/:carID?', controller.getCars);
 
-router.get('/:carID?', (req, res) => {
+router.post('/:carID', validator.body(payloadSchema.createCar), controller.createCar);
 
-})
+router.put('/:carID', validator.body(payloadSchema.updateCar), controller.updateCar);
 
-router.post('/:carID', (req, res) => {
+router.delete('/:carID', controller.deleteCar);
 
-})
+router.get('/deduct-point/:carID', controller.getCarDeductPoint);
 
-router.put('/:carID', (req, res) => {
-
-})
-
-router.delete('/:carID', (req, res) => {
-
-})
-
-router.get('/deduct-point/:carID', (req, res) => {
-
-})
-
-export default router;
+module.exports = {router};

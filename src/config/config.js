@@ -1,4 +1,4 @@
-import Joi from 'joi';
+const Joi = require('joi');
 
 const envVarSchema = Joi.object().keys({
   NODE_ENV: Joi.string().default('development').allow('development', 'production'),
@@ -28,4 +28,4 @@ const config = {
   mysql_password: process.env.mysql_password,
 };
 
-export default config;
+module.exports = config;

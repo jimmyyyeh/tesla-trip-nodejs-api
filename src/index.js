@@ -1,5 +1,7 @@
-import config from './config/config';
-import app from './config/express';
+const express = require('./config/express');
+const config = require('./config/config');
+
+const app = express.app;
 
 if (!module.parent) {
   // 同 python if __name__ == '__main__':
@@ -8,4 +10,4 @@ if (!module.parent) {
   });
 }
 
-export default app;
+module.exports = {app};
