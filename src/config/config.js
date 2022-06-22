@@ -9,6 +9,7 @@ const envVarSchema = Joi.object().keys({
   MYSQL_HOST: Joi.string().default('localhost'),
   MYSQL_USER: Joi.string(),
   MYSQL_PASSWORD: Joi.string(),
+  SALT_ROUNDS: Joi.number(),
 }).unknown().required();
 
 const {error} = envVarSchema.validate(process.env);
@@ -19,13 +20,14 @@ if (error) {
 
 const config = {
   node_env: process.env.NODE_ENV,
-  port: process.env.PORT,
+  port: parseInt(process.env.PORT, 10),
   version: process.env.VERSION,
-  db_name: process.env.db_name,
-  mysql_port: process.env.mysql_port,
-  mysql_host: process.env.mysql_host,
-  mysql_user: process.env.mysql_user,
-  mysql_password: process.env.mysql_password,
+  db_name: process.env.DB_NAME,
+  mysql_port: parseInt(process.env.MYSQL_PORT, 10),
+  mysql_host: process.env.MYSQL_HOST,
+  mysql_user: process.env.MYSQL_USER,
+  mysql_password: process.env.MYSQL_PASSWORD,
+  salt_rounds: parseInt(process.env.SALT_ROUNDS, 10),
 };
 
-module.exports = config;
+module.exports = {config};
