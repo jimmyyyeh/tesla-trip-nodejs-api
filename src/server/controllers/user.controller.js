@@ -1,4 +1,5 @@
 const authTools = require('../../utils/auth-tools');
+const mailTools = require('../../utils/mail-tools');
 const model = require('../models/models');
 
 
@@ -70,6 +71,10 @@ const signUp = async (req, res) => {
                 charger_id: dbUser.charger_id,
             }
             res.send(result)
+            mailTools.sendVerifyMail(
+                req.body.email,
+                'Tesla Trip 驗證信件'
+    ,        )
         } else {
             res.send('user already exists');
             // TODO raise
