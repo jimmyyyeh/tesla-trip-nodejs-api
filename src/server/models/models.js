@@ -141,4 +141,4 @@ RedeemLog.init({
     update_datetime: {type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW, comment: '更新時間'},
 }, {sequelize, freezeTableName: true, timestamps: false, modelName: 'redeem_log'})
 
-module.exports = {User, PointLog, Car, CarModel, AdministrativeDistrict, SuperCharger, Trip, TripRate, Product, RedeemLog};
+module.exports = {sequelize, User, PointLog, Car, CarModel, AdministrativeDistrict, SuperCharger, Trip, TripRate, Product, RedeemLog};

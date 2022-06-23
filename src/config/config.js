@@ -10,6 +10,8 @@ const envVarSchema = Joi.object().keys({
   MYSQL_USER: Joi.string(),
   MYSQL_PASSWORD: Joi.string(),
   SALT_ROUNDS: Joi.number(),
+  SECRET_KEY: Joi.string(),
+  TOKEN_EXP_TIME: Joi.string(),
 }).unknown().required();
 
 const {error} = envVarSchema.validate(process.env);
@@ -28,6 +30,8 @@ const config = {
   mysql_user: process.env.MYSQL_USER,
   mysql_password: process.env.MYSQL_PASSWORD,
   salt_rounds: parseInt(process.env.SALT_ROUNDS, 10),
+  secret_key: process.env.SECRET_KEY,
+  token_exp_time: parseInt(process.env.TOKEN_EXP_TIME),
 };
 
 module.exports = {config};
