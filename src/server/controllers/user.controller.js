@@ -1,5 +1,6 @@
 const authTools = require('../../utils/auth-tools');
 const mailTools = require('../../utils/mail-tools');
+const redisTools = require('../../utils/redis-tools');
 const model = require('../models/models');
 
 const signIn = async (req, res) => {
@@ -29,11 +30,10 @@ const signIn = async (req, res) => {
       role: dbUser.role,
       charger_id: dbUser.charger_id,
     };
-    await transaction.commit();
-    const token = authTools.generateToken(result);
-    result['access_token'] = token;
+    result['access_token'] = authTools.generateToken(result);
     result['token_type'] = 'bearer';
     res.send(result);
+    await transaction.commit();
   } catch (error) {
     await transaction.rollback();
     console.log(error);
@@ -55,7 +55,6 @@ const signUp = async (req, res) => {
       },
       transaction: transaction
     });
-    await transaction.commit();
     if (created) {
       const result = {
         id: dbUser.id,
@@ -70,7 +69,8 @@ const signUp = async (req, res) => {
         charger_id: dbUser.charger_id,
       };
       res.send(result);
-      mailTools.sendVerifyMail(
+      await mailTools.sendVerifyMail(
+        dbUser.id,
         req.body.email,
         'Tesla Trip 驗證信件'
         ,);
@@ -78,6 +78,7 @@ const signUp = async (req, res) => {
       res.send('user already exists');
       // TODO raise
     }
+    await transaction.commit();
   } catch (error) {
     await transaction.rollback();
     console.log(error);
@@ -85,8 +86,32 @@ const signUp = async (req, res) => {
   }
 };
 
-const verify = (req, res) => {
-
+const verify = async (req, res) => {
+  const id_ = await redisTools.getVerifyToken(req.body.token);
+  if (!id_) {
+    res.send('token not exists');
+    // TODO raise
+  }
+  const transaction = await model.sequelize.transaction();
+  try {
+    const dbUser = await model.User.findOne({
+      where: { id: parseInt(id_, 10) },
+      transaction: transaction
+    });
+    if (!dbUser) {
+      res.send('user not exists');
+      // TODO raise
+    }
+    const data = { is_verified: true };
+    await dbUser.update(data);
+    await redisTools.delVerifyToken(req.body.token);
+    res.send(true);
+    await transaction.commit();
+  } catch (error) {
+    await transaction.rollback();
+    console.log(error);
+    // TODO raise
+  }
 };
 
 const resendVerify = (req, res) => {
@@ -120,7 +145,7 @@ const updateProfile = async (req, res) => {
     if (req.body.nickname) {
       data['nickname'] = req.body.nickname;
     }
-    dbUser.update(data);
+    await dbUser.update(data);
     await transaction.commit();
     const result = {
       id: dbUser.id,

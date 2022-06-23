@@ -17,6 +17,8 @@ const envVarSchema = Joi.object()
       .default('localhost'),
     MYSQL_USER: Joi.string(),
     MYSQL_PASSWORD: Joi.string(),
+    REDIS_HOST: Joi.string(),
+    REDIS_PORT: Joi.string(),
     SALT_ROUNDS: Joi.number(),
     SECRET_KEY: Joi.string(),
     TOKEN_EXP_TIME: Joi.number()
@@ -48,6 +50,8 @@ const config = {
   mysqlHost: process.env.MYSQL_HOST,
   mysqlUser: process.env.MYSQL_USER,
   mysqlPassword: process.env.MYSQL_PASSWORD,
+  redis_host: process.env.REDIS_HOST,
+  redis_port: process.env.REDIS_PORT,
   saltRounds: parseInt(process.env.SALT_ROUNDS, 10),
   secretKey: process.env.SECRET_KEY,
   tokenExpTime: parseInt(process.env.TOKEN_EXP_TIME),

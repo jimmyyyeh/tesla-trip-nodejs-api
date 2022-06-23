@@ -1,5 +1,6 @@
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
+const redisTools = require('../utils/redis-tools');
 const { config } = require('../config/config');
 
 const transporter = nodemailer.createTransport({
@@ -32,11 +33,11 @@ const sendMail = (receiver, subject, html) => {
   );
 };
 
-const sendVerifyMail = (reciver, subject) => {
+const sendVerifyMail = async (id_, receiver, subject) => {
   const token = crypto.randomBytes(64)
     .toString('hex');
-  // TODO redis
-  html = `
+  await redisTools.setVerifyToken(id_, token);
+  const html = `
     <h1>歡迎註冊</h1>
     <body>
         <p>歡迎您註冊Tesla Trip，請點選以下連結以進行驗證:</p>
@@ -44,7 +45,7 @@ const sendVerifyMail = (reciver, subject) => {
     </body>
     `;
   sendMail(
-    reciver,
+    receiver,
     subject,
     html
   );
