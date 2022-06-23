@@ -95,7 +95,7 @@ const verify = async (req, res) => {
   const transaction = await model.sequelize.transaction();
   try {
     const dbUser = await model.User.findOne({
-      where: { id: parseInt(id_, 10) },
+      where: { id: id_ },
       transaction: transaction
     });
     if (!dbUser) {
@@ -114,8 +114,28 @@ const verify = async (req, res) => {
   }
 };
 
-const resendVerify = (req, res) => {
-
+const resendVerify = async (req, res) => {
+  const transaction = await model.sequelize.transaction();
+  try {
+    const dbUser = await model.User.findOne({
+      where: { username: req.body.username },
+      transaction: transaction
+    });
+    if (!dbUser) {
+      res.send('user not exists');
+      // TODO raise
+    }
+    await mailTools.sendVerifyMail(
+      dbUser.id,
+      dbUser.email,
+      'Tesla Trip 驗證信件'
+      ,);
+    res.send(true);
+  } catch (error) {
+    await transaction.rollback();
+    console.log(error);
+    // TODO raise
+  }
 };
 
 const requestResetPassword = (req, res) => {
