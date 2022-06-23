@@ -1,12 +1,12 @@
 const express = require('express');
 const user = require('./user.route');
 const administrativeDistrict = require('./administrative-district.route');
-const car = require( './car.route');
+const car = require('./car.route');
 const charger = require('./charger.route');
 const product = require('./product.route');
 const qrcode = require('./qrcode.route');
 const trip = require('./trip.route');
-const tripRate = require( './trip-rate.route');
+const tripRate = require('./trip-rate.route');
 
 const router = express.Router();
 
@@ -20,4 +20,4 @@ router.use('/qrcode', qrcode.router);
 router.use('/trip', trip.router);
 router.use('/tripRate', tripRate.router);
 
-module.exports = {router};
+module.exports = { router };

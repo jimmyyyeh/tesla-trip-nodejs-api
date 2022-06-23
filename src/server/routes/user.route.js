@@ -1,12 +1,11 @@
-const express  = require('express');
+const express = require('express');
 const validation = require('express-joi-validation');
 
-const controller = require('../controllers/user.controller')
+const controller = require('../controllers/user.controller');
 const payloadSchema = require('../../config/payload-schema');
 
 const router = express.Router();
 const validator = validation.createValidator({});
-
 
 router.post('/sign-in', validator.body(payloadSchema.signIn), controller.signIn);
 
@@ -24,4 +23,4 @@ router.get('/profile', controller.getProfile);
 
 router.put('/profile', validator.body(payloadSchema.updateProfile), controller.updateProfile);
 
-module.exports = {router};
+module.exports = { router };

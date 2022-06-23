@@ -9,4 +9,4 @@ const validator = validation.createValidator({});
 
 router.put('/', validator.body(payloadSchema.updateTripRate), controller.updateTripRate);
 
-module.exports = {router};
+module.exports = { router };

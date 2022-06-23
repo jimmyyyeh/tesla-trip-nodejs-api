@@ -1,5 +1,5 @@
-const {app} = require('./config/express');
-const {config} = require('./config/config');
+const { app } = require('./config/express');
+const { config } = require('./config/config');
 
 if (!module.parent) {
   // 同 python if __name__ == '__main__':
@@ -8,4 +8,4 @@ if (!module.parent) {
   });
 }
 
-module.exports = {app};
+module.exports = { app };

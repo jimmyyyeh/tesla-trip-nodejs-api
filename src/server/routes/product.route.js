@@ -11,10 +11,10 @@ router.get('/:productID?', controller.getProducts);
 
 router.post('/:productID', validator.body(payloadSchema.createProduct), controller.createProduct);
 
-router.put('/:productID', validator.body(payloadSchema.updateProduct),  controller.updateProduct);
+router.put('/:productID', validator.body(payloadSchema.updateProduct), controller.updateProduct);
 
 router.delete('/:productID', controller.deleteProduct);
 
 router.post('/redeem-product/:token', controller.redeemProduct);
 
-module.exports = {router};
+module.exports = { router };

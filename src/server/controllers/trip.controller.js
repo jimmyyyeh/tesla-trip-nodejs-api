@@ -6,4 +6,7 @@ const createTrip = (req, res) => {
 
 };
 
-module.exports = {getTrips, createTrip};
+module.exports = {
+  getTrips,
+  createTrip
+};

@@ -22,4 +22,11 @@ const getCarDeductPoint = (req, res) => {
 
 };
 
-module.exports = {getCarModel, getCars, createCar, updateCar, deleteCar, getCarDeductPoint};
+module.exports = {
+  getCarModel,
+  getCars,
+  createCar,
+  updateCar,
+  deleteCar,
+  getCarDeductPoint
+};

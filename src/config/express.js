@@ -9,4 +9,4 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/', index.router);
 
-module.exports = {app};
+module.exports = { app };

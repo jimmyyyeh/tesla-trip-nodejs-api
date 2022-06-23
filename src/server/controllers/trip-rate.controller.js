@@ -2,4 +2,4 @@ const updateTripRate = (req, res) => {
 
 };
 
-module.exports = {updateTripRate};
+module.exports = { updateTripRate };

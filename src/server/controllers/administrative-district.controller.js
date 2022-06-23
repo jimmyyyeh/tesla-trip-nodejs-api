@@ -2,4 +2,4 @@ const getAdministrativeDistrict = (req, res) => {
 
 };
 
-module.exports = {getAdministrativeDistrict};
+module.exports = { getAdministrativeDistrict };

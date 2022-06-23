@@ -18,4 +18,10 @@ const redeemProduct = (req, res) => {
 
 };
 
-module.exports = {getProducts, createProduct, updateProduct, deleteProduct, redeemProduct};
+module.exports = {
+  getProducts,
+  createProduct,
+  updateProduct,
+  deleteProduct,
+  redeemProduct
+};

@@ -1,28 +1,37 @@
 const Joi = require('joi');
 
-const envVarSchema = Joi.object().keys({
-  NODE_ENV: Joi.string().default('development').allow('development', 'production'),
-  PORT: Joi.number().default(5000),
-  VERSION: Joi.string(),
-  WEB_DOMAIN: Joi.string(),
-  API_DOMAIN: Joi.string(),
-  DB_NAME: Joi.string(),
-  MYSQL_PORT: Joi.number().default(3306),
-  MYSQL_HOST: Joi.string().default('localhost'),
-  MYSQL_USER: Joi.string(),
-  MYSQL_PASSWORD: Joi.string(),
-  SALT_ROUNDS: Joi.number(),
-  SECRET_KEY: Joi.string(),
-  TOKEN_EXP_TIME: Joi.number().default(60 * 15 * 100),
-  MAIL_USERNAME: Joi.string(),
-  MAIL_PASSWORD: Joi.string(),
-  OAUTH_CLIENT_ID: Joi.string(),
-  OAUTH_PASSWORD: Joi.string(),
-  OAUTH_ACCESS_TOKEN: Joi.string(),
-  OAUTH_REFRESH_TOKEN: Joi.string(),
-}).unknown().required();
+const envVarSchema = Joi.object()
+  .keys({
+    NODE_ENV: Joi.string()
+      .default('development')
+      .allow('development', 'production'),
+    PORT: Joi.number()
+      .default(5000),
+    VERSION: Joi.string(),
+    WEB_DOMAIN: Joi.string(),
+    API_DOMAIN: Joi.string(),
+    DB_NAME: Joi.string(),
+    MYSQL_PORT: Joi.number()
+      .default(3306),
+    MYSQL_HOST: Joi.string()
+      .default('localhost'),
+    MYSQL_USER: Joi.string(),
+    MYSQL_PASSWORD: Joi.string(),
+    SALT_ROUNDS: Joi.number(),
+    SECRET_KEY: Joi.string(),
+    TOKEN_EXP_TIME: Joi.number()
+      .default(60 * 15 * 100),
+    MAIL_USERNAME: Joi.string(),
+    MAIL_PASSWORD: Joi.string(),
+    OAUTH_CLIENT_ID: Joi.string(),
+    OAUTH_PASSWORD: Joi.string(),
+    OAUTH_ACCESS_TOKEN: Joi.string(),
+    OAUTH_REFRESH_TOKEN: Joi.string(),
+  })
+  .unknown()
+  .required();
 
-const {error} = envVarSchema.validate(process.env);
+const { error } = envVarSchema.validate(process.env);
 
 if (error) {
   throw new Error(`Config validation error: ${error.message}`);
@@ -50,4 +59,4 @@ const config = {
   oauthRefreshToken: process.env.OAUTH_REFRESH_TOKEN,
 };
 
-module.exports = {config};
+module.exports = { config };

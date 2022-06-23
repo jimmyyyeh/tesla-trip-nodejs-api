@@ -19,4 +19,4 @@ router.delete('/:carID', controller.deleteCar);
 
 router.get('/deduct-point/:carID', controller.getCarDeductPoint);
 
-module.exports = {router};
+module.exports = { router };

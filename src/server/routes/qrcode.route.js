@@ -11,5 +11,4 @@ router.get('/product/:token', controller.decodeProduct);
 
 router.post('/product', validator.body(payloadSchema.encodeProduct), controller.encodeProduct);
 
-
-module.exports = {router};
+module.exports = { router };

@@ -11,4 +11,4 @@ router.get('/', controller.getTrips);
 
 router.post('/', validator.body(payloadSchema.createTrip), controller.createTrip);
 
-module.exports = {router};
+module.exports = { router };

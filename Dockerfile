@@ -1,4 +1,3 @@
-# Buster-slim Node(Erbium) 12.20.2 LTS
 FROM node:14-buster-slim
 LABEL maintainer="Jimmy Yeh <chienfeng0719@hotmail.com>"
 
