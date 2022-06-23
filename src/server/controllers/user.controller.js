@@ -9,11 +9,11 @@ const signIn = async (req, res) => {
       where: { username: req.body.username },
       transaction: transaction
     });
-    if (!user) {
+    if (!dbUser) {
       res.send('user not exists');
       // TODO raise
     }
-    if (!authTools.decryptPwd(user.password, req.body.password)) {
+    if (!authTools.decryptPwd(dbUser.password, req.body.password)) {
       res.send('user invalidate');
       // TODO raise
     }
