@@ -11,7 +11,7 @@ const envVarSchema = Joi.object().keys({
   MYSQL_PASSWORD: Joi.string(),
   SALT_ROUNDS: Joi.number(),
   SECRET_KEY: Joi.string(),
-  TOKEN_EXP_TIME: Joi.string(),
+  TOKEN_EXP_TIME: Joi.number().default(60 * 15 * 100),
 }).unknown().required();
 
 const {error} = envVarSchema.validate(process.env);

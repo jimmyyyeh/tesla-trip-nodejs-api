@@ -11,7 +11,18 @@ const decryptPwd = (hashedPwd, password) => {
 }
 
 const generateToken = (payload) => {
-    return jwt.sign({payload, exp: config.token_exp_time}, config.secret_key);
+    return jwt.sign({payload, exp: 123456789012}, config.secret_key);
 }
 
-module.exports = {encryptPwd, decryptPwd, generateToken};
+const decryptToken = (token) => {
+    const {payload, error} = jwt.verify(token, config.secret_key);
+    if (error) {
+        // TODO raise
+        console.log(error);
+        return null;
+    } else {
+        return payload;
+    }
+}
+
+module.exports = {encryptPwd, decryptPwd, generateToken, decryptToken};

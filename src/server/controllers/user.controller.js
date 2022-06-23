@@ -5,7 +5,7 @@ const model = require('../models/models');
 const signIn = async (req, res) => {
     const transaction = await model.sequelize.transaction();
     try {
-        const user = await model.User.findOne({
+        const dbUser = await model.User.findOne({
             where: {username: req.body.username},
             transaction: transaction
         });
@@ -18,17 +18,18 @@ const signIn = async (req, res) => {
             // TODO raise
         }
         let result = {
-            id: user.id,
-            username: user.username,
-            nickname: user.nickname,
-            birthday: user.birthday,
-            sex: user.sex,
-            email: user.email,
-            point: user.point,
-            is_verified: user.is_verified,
-            role: user.role,
-            charger_id: user.charger_id,
+            id: dbUser.id,
+            username: dbUser.username,
+            nickname: dbUser.nickname,
+            birthday: dbUser.birthday,
+            sex: dbUser.sex,
+            email: dbUser.email,
+            point: dbUser.point,
+            is_verified: dbUser.is_verified,
+            role: dbUser.role,
+            charger_id: dbUser.charger_id,
         }
+        await transaction.commit();
         const token = authTools.generateToken(result)
         result['access_token'] = token
         result['token_type'] = 'bearer'
@@ -37,15 +38,13 @@ const signIn = async (req, res) => {
         await transaction.rollback();
         console.log(error);
         // TODO raise
-    } finally {
-        await transaction.commit();
     }
 };
 
 const signUp = async (req, res) => {
     const transaction = await model.sequelize.transaction();
     try{
-        const [user, created] = await model.User.findOrCreate({
+        const [dbUser, created] = await model.User.findOrCreate({
             where: {username: req.body.username},
             defaults: {
                 password: authTools.encryptPwd(req.body.password),
@@ -56,18 +55,19 @@ const signUp = async (req, res) => {
             }, 
             transaction: transaction
         });
+        await transaction.commit();
         if (created) {
             const result = {
-                id: user.id,
-                username: user.username,
-                nickname: user.nickname,
-                birthday: user.birthday,
-                sex: user.sex,
-                email: user.email,
-                point: user.point,
-                is_verified: user.is_verified,
-                role: user.role,
-                charger_id: user.charger_id,
+                id: dbUser.id,
+                username: dbUser.username,
+                nickname: dbUser.nickname,
+                birthday: dbUser.birthday,
+                sex: dbUser.sex,
+                email: dbUser.email,
+                point: dbUser.point,
+                is_verified: dbUser.is_verified,
+                role: dbUser.role,
+                charger_id: dbUser.charger_id,
             }
             res.send(result)
         } else {
@@ -78,8 +78,6 @@ const signUp = async (req, res) => {
         await transaction.rollback();
         console.log(error);
         // TODO raise
-    } finally {
-        await transaction.commit();
     }
 };
 
@@ -100,11 +98,44 @@ const resetPassword = (req, res) => {
 };
 
 const getProfile = (req, res) => {
-
+    const user = authTools.decryptToken(req.headers.authorization);
+    res.send(user);
 };
 
-const updateProfile = (req, res) => {
-
+const updateProfile = async (req, res) => {
+    const user = authTools.decryptToken(req.headers.authorization);
+    const transaction = await model.sequelize.transaction();
+    try {
+        const dbUser = await model.User.findOne({
+            where: {username: user.username}
+        })
+        const data = {};
+        if (req.body.email){
+            data['email'] = req.body.email
+        }
+        if (req.body.nickname){
+            data['nickname'] = req.body.nickname
+        }
+        dbUser.update(data);
+        await transaction.commit();
+        const result = {
+            id: dbUser.id,
+            username: dbUser.username,
+            nickname: dbUser.nickname,
+            birthday: dbUser.birthday,
+            sex: dbUser.sex,
+            email: dbUser.email,
+            point: dbUser.point,
+            is_verified: dbUser.is_verified,
+            role: dbUser.role,
+            charger_id: dbUser.charger_id,
+        }
+        res.send(result)
+    } catch (error) {
+        await transaction.rollback();
+        console.log(error);
+        // TODO raise
+    }
 };
 
 
