@@ -5,6 +5,7 @@
   "license": "MIT",
   "scripts": {
     "build": "webpack -w",
+    "dev": "nodemon src/index.js",
     "start": "nodemon dist/index.bundle.js"
   },
   "dependencies": {
