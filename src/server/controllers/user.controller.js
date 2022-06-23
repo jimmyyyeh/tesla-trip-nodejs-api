@@ -2,14 +2,16 @@ const authTools = require('../../utils/auth-tools');
 const mailTools = require('../../utils/mail-tools');
 const redisTools = require('../../utils/redis-tools');
 const model = require('../models/models');
+const {
+  getUserByUsername,
+  upsertUser,
+  getUserByID
+} = require('../../utils/db-tools');
 
 const signIn = async (req, res) => {
   const transaction = await model.sequelize.transaction();
   try {
-    const dbUser = await model.User.findOne({
-      where: { username: req.body.username },
-      transaction: transaction
-    });
+    const dbUser = getUserByUsername(req.body.username, transaction);
     if (!dbUser) {
       res.send('user not exists');
       // TODO raise
@@ -44,17 +46,7 @@ const signIn = async (req, res) => {
 const signUp = async (req, res) => {
   const transaction = await model.sequelize.transaction();
   try {
-    const [dbUser, created] = await model.User.findOrCreate({
-      where: { username: req.body.username },
-      defaults: {
-        password: authTools.encryptPwd(req.body.password),
-        email: req.body.email,
-        birthday: req.body.birthday,
-        nickname: req.body.nickname ?? req.body.username,
-        sex: req.body.sex,
-      },
-      transaction: transaction
-    });
+    const [dbUser, created] = upsertUser(req.body, transaction);
     if (created) {
       const result = {
         id: dbUser.id,
@@ -69,11 +61,7 @@ const signUp = async (req, res) => {
         charger_id: dbUser.charger_id,
       };
       res.send(result);
-      await mailTools.sendVerifyMail(
-        dbUser.id,
-        req.body.email,
-        'Tesla Trip 驗證信件'
-        ,);
+      await mailTools.sendVerifyMail(dbUser.id, req.body.email, 'Tesla Trip 驗證信件',);
     } else {
       res.send('user already exists');
       // TODO raise
@@ -87,17 +75,14 @@ const signUp = async (req, res) => {
 };
 
 const verify = async (req, res) => {
-  const id_ = await redisTools.getVerifyToken(req.body.token);
-  if (!id_) {
+  const id = await redisTools.getVerifyToken(req.body.token);
+  if (!id) {
     res.send('token not exists');
     // TODO raise
   }
   const transaction = await model.sequelize.transaction();
   try {
-    const dbUser = await model.User.findOne({
-      where: { id: id_ },
-      transaction: transaction
-    });
+    const dbUser = getUserByID(id, transaction);
     if (!dbUser) {
       res.send('user not exists');
       // TODO raise
@@ -117,19 +102,12 @@ const verify = async (req, res) => {
 const resendVerify = async (req, res) => {
   const transaction = await model.sequelize.transaction();
   try {
-    const dbUser = await model.User.findOne({
-      where: { username: req.body.username },
-      transaction: transaction
-    });
+    const dbUser = getUserByUsername(req.body.username, transaction);
     if (!dbUser) {
       res.send('user not exists');
       // TODO raise
     }
-    await mailTools.sendVerifyMail(
-      dbUser.id,
-      dbUser.email,
-      'Tesla Trip 驗證信件'
-      ,);
+    await mailTools.sendVerifyMail(dbUser.id, dbUser.email, 'Tesla Trip 驗證信件',);
     res.send(true);
   } catch (error) {
     await transaction.rollback();
@@ -138,7 +116,7 @@ const resendVerify = async (req, res) => {
   }
 };
 
-const requestResetPassword = (req, res) => {
+const requestResetPassword = async (req, res) => {
 
 };
 
@@ -155,9 +133,7 @@ const updateProfile = async (req, res) => {
   const user = authTools.decryptToken(req.headers.authorization);
   const transaction = await model.sequelize.transaction();
   try {
-    const dbUser = await model.User.findOne({
-      where: { username: user.username }
-    });
+    const dbUser = getUserByUsername(user.username, transaction);
     const data = {};
     if (req.body.email) {
       data['email'] = req.body.email;

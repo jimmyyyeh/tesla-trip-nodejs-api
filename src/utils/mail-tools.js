@@ -33,10 +33,10 @@ const sendMail = (receiver, subject, html) => {
   );
 };
 
-const sendVerifyMail = async (id_, receiver, subject) => {
+const sendVerifyMail = async (id, receiver, subject) => {
   const token = crypto.randomBytes(64)
     .toString('hex');
-  await redisTools.setVerifyToken(id_, token);
+  await redisTools.setVerifyToken(id, token);
   const html = `
     <h1>歡迎註冊</h1>
     <body>
