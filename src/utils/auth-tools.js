@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 const {config} = require('../config/config')
 
 const encryptPwd = (password) => {
-    return bcrypt.hashSync(password, config.salt_rounds);
+    return bcrypt.hashSync(password, config.saltRounds);
 };
 
 const decryptPwd = (hashedPwd, password) => {
@@ -11,11 +11,11 @@ const decryptPwd = (hashedPwd, password) => {
 }
 
 const generateToken = (payload) => {
-    return jwt.sign({payload, exp: 123456789012}, config.secret_key);
+    return jwt.sign({payload, exp: config.tokenExpTime}, config.secretKey);
 }
 
 const decryptToken = (token) => {
-    const {payload, error} = jwt.verify(token, config.secret_key);
+    const {payload, error} = jwt.verify(token, config.secretKey);
     if (error) {
         // TODO raise
         console.log(error);

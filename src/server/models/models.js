@@ -2,9 +2,9 @@ const {config} = require('../../config/config');
 const {Model, DataTypes} = require('sequelize');
 const {Sequelize} = require('sequelize');
 
-const sequelize = new Sequelize(config.db_name, config.mysql_user, config.mysql_password, {
-    host: config.mysql_host,
-    port: config.mysql_port,
+const sequelize = new Sequelize(config.dbName, config.mysqlUser, config.mysqlPassword, {
+    host: config.mysqlHost,
+    port: config.mysqlPort,
     dialect: 'mysql'
 });
 

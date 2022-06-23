@@ -8,18 +8,18 @@ const transporter = nodemailer.createTransport({
     secure: true,
     auth: {
         type: 'OAuth2',
-        user: config.mail_username,
-        clientId: config.oauth_client_id,
-        clientSecret: config.oauth_password,
-        accessToken: config.oauth_access_token,
-        refreshToken: config.oauth_refresh_token,
+        user: config.mailUsername,
+        clientId: config.oauthClientID,
+        clientSecret: config.oauthPassword,
+        accessToken: config.oauthAccessToken,
+        refreshToken: config.oauthRefreshToken,
     }
 });
 
 const sendMail = (receiver, subject, html) => {
     transporter.sendMail(
         {
-          from: `Tesla Trip <${config.mail_username}@gmail.com`,
+          from: `Tesla Trip <${config.mailUsername}@gmail.com`,
           to: receiver,
           subject: subject,
           html: html,
