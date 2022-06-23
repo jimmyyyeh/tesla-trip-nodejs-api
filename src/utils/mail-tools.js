@@ -67,4 +67,7 @@ const sendResetPasswordMail = async (id, email) => {
   );
 };
 
-module.exports = { sendVerifyMail , sendResetPasswordMail};
+module.exports = {
+  sendVerifyMail,
+  sendResetPasswordMail
+};

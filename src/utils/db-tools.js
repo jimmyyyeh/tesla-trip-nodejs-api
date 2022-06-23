@@ -1,9 +1,10 @@
 const model = require('../server/models/models');
 const authTools = require('./auth-tools');
+const { Op } = require('sequelize');
 
 const upsertUser = async (payload, transaction) => {
   return await model.User.findOrCreate({
-    where: { username: payload.username },
+    where: { [Op.or]: [{ username: payload.username }, { email: payload.email }] },
     defaults: {
       password: authTools.encryptPwd(payload.password),
       email: payload.email,
