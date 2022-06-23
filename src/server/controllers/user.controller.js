@@ -7,7 +7,7 @@ const dbTools = require('../../utils/db-tools');
 const signIn = async (req, res) => {
   const transaction = await model.sequelize.transaction();
   try {
-    const dbUser = dbTools.getUserByUsername(req.body.username, transaction);
+    const dbUser = await dbTools.getUserByUsername(req.body.username, transaction);
     if (!dbUser) {
       res.send('user not exists');
       // TODO raise
@@ -31,9 +31,7 @@ const signIn = async (req, res) => {
     result['access_token'] = authTools.generateToken(result);
     result['token_type'] = 'bearer';
     res.send(result);
-    await transaction.commit();
   } catch (error) {
-    await transaction.rollback();
     console.log(error);
     // TODO raise
   }
@@ -42,7 +40,7 @@ const signIn = async (req, res) => {
 const signUp = async (req, res) => {
   const transaction = await model.sequelize.transaction();
   try {
-    const [dbUser, created] = dbTools.upsertUser(req.body, transaction);
+    const [dbUser, created] = await dbTools.upsertUser(req.body, transaction);
     if (created) {
       const result = {
         id: dbUser.id,
@@ -78,7 +76,7 @@ const verify = async (req, res) => {
   }
   const transaction = await model.sequelize.transaction();
   try {
-    const dbUser = dbTools.getUserByID(id, transaction);
+    const dbUser = await dbTools.getUserByID(id, transaction);
     if (!dbUser) {
       res.send('user not exists');
       // TODO raise
@@ -98,7 +96,7 @@ const verify = async (req, res) => {
 const resendVerify = async (req, res) => {
   const transaction = await model.sequelize.transaction();
   try {
-    const dbUser = dbTools.getUserByUsername(req.body.username, transaction);
+    const dbUser = await dbTools.getUserByUsername(req.body.username, transaction);
     if (!dbUser) {
       res.send('user not exists');
       // TODO raise
@@ -140,7 +138,7 @@ const updateProfile = async (req, res) => {
   const user = authTools.decryptToken(req.headers.authorization);
   const transaction = await model.sequelize.transaction();
   try {
-    const dbUser = dbTools.getUserByUsername(user.username, transaction);
+    const dbUser = await dbTools.getUserByUsername(user.username, transaction);
     const data = {};
     if (req.body.email) {
       data['email'] = req.body.email;
