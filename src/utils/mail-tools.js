@@ -39,7 +39,7 @@ const sendVerifyMail = (reciver, subject) => {
     <h1>歡迎註冊</h1>
     <body>
         <p>歡迎您註冊Tesla Trip，請點選以下連結以進行驗證:</p>
-        <a href='${config.web}/#/verify/${token}'>驗證連結</a>
+        <a href='${config.webDomain}/#/verify/${token}'>驗證連結</a>
     </body>
     `
     sendMail(
@@ -50,4 +50,3 @@ const sendVerifyMail = (reciver, subject) => {
 }
 
 module.exports = {sendVerifyMail};
-
