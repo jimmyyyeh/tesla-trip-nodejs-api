@@ -22,8 +22,33 @@ const delVerifyToken = async (token) => {
   await client.disconnect();
 };
 
+const setResetPasswordToken = async (id, token) => {
+  const key = `reset_password:${token}`;
+  await client.connect();
+  await client.set(key, id);
+  await client.disconnect();
+};
+
+const getResetPasswordToken = async (token) => {
+  const key = `reset_password:${token}`;
+  await client.connect();
+  const value = await client.get(key);
+  await client.disconnect();
+  return value;
+};
+
+const delResetPasswordToken = async (token) => {
+  const key = `reset_password:${token}`;
+  await client.connect();
+  await client.del(key);
+  await client.disconnect();
+};
+
 module.exports = {
   setVerifyToken,
   getVerifyToken,
-  delVerifyToken
+  delVerifyToken,
+  setResetPasswordToken,
+  getResetPasswordToken,
+  delResetPasswordToken
 };

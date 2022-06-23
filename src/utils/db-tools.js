@@ -16,7 +16,6 @@ const upsertUser = async (payload, transaction) => {
 };
 
 const getUserByUsername = async (username, transaction) => {
-
   return await model.User.findOne({
     where: { username: username },
     transaction: transaction
@@ -24,9 +23,15 @@ const getUserByUsername = async (username, transaction) => {
 };
 
 const getUserByID = async (id, transaction) => {
-
   return await model.User.findOne({
     where: { id: id },
+    transaction: transaction
+  });
+};
+
+const getUserByEmail = async (email, transaction) => {
+  return await model.User.findOne({
+    where: { email: email },
     transaction: transaction
   });
 };
@@ -35,4 +40,5 @@ module.exports = {
   upsertUser,
   getUserByUsername,
   getUserByID,
+  getUserByEmail,
 };
