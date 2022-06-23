@@ -125,8 +125,28 @@ const requestResetPassword = async (req, res) => {
   }
 };
 
-const resetPassword = (req, res) => {
-
+const resetPassword = async (req, res) => {
+  const transaction = await model.sequelize.transaction();
+  try {
+    const id = await redisTools.getResetPasswordToken(req.body.token);
+    if (!id) {
+      res.send('token not exists');
+      // TODO raise
+    }
+    const dbUser = await dbTools.getUserByID(id, transaction);
+    if (dbUser.username !== req.body.username) {
+      res.send('token invalidate');
+      // TODO raise
+    }
+    const data = { password: authTools.encryptPwd(req.body.password) };
+    await dbUser.update(data);
+    await transaction.commit();
+    res.send(true);
+  } catch (error) {
+    await transaction.rollback();
+    console.log(error);
+    // TODO raise
+  }
 };
 
 const getProfile = (req, res) => {
