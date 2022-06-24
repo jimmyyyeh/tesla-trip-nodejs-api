@@ -86,12 +86,22 @@ const createCar = async (userID, carModelID, payload, transaction) => {
   );
 };
 
-const deleteCar = async (userID, carID, transaction) => {
+const deleteCar = async (userID, carID, tripIDs, transaction) => {
+  await model.TripRate.destroy({
+    where: { trip_id: { [Op.in]: tripIDs } },
+    transaction: transaction
+  });
+
+  await model.Trip.destroy({
+    where: { car_id: carID },
+    transaction: transaction
+  });
   const filter = [{ 'user_id': userID }, { 'id': carID }];
-  return await model.Car.destroy({
+  await model.Car.destroy({
     where: { [Op.and]: filter },
     transaction: transaction
   });
+
 };
 
 const getCarModel = async (model_, spec, transaction) => {
@@ -120,6 +130,18 @@ const getTripRates = async (tripIDs, transaction) => {
   });
 };
 
+const createPointLog = async (userID, point, change, type, transaction) => {
+  await model.PointLog.create(
+    {
+      user_id: userID,
+      point: point,
+      change: change,
+      type: type
+    },
+    { transaction: transaction }
+  );
+};
+
 module.exports = {
   upsertUser,
   getUserByUsername,
@@ -135,4 +157,5 @@ module.exports = {
   getCarModels,
   getUserTrips,
   getTripRates,
+  createPointLog
 };

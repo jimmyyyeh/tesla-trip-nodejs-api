@@ -1,5 +1,6 @@
 const authTools = require('../../utils/auth-tools');
 const dbTools = require('../../utils/db-tools');
+const constant = require('../../config/constant');
 const toolkits = require('../../utils/toolkits');
 const model = require('../models/models');
 
@@ -88,12 +89,33 @@ const updateCar = async (req, res) => {
   }
 };
 
+const deductUserPoint = async (userID, point, transaction) => {
+  const dbUser = await dbTools.getUserByID(userID, transaction);
+  let deductPoint = dbUser.point;
+  if (dbUser.point < point) {
+    await dbUser.update({ point: 0 });
+  } else {
+    await dbUser.update({ point: deductPoint - point });
+    deductPoint = deductPoint - point;
+  }
+  await dbTools.createPointLog(
+    userID, point, deductPoint, constant.pointLogType.DELETE_CAR
+  );
+};
+
 const deleteCar = async (req, res) => {
   const user = authTools.decryptToken(req.headers.authorization);
   const transaction = await model.sequelize.transaction();
   const carID = req.params.carID;
   try {
-    await dbTools.deleteCar(user.id, carID, transaction);
+    const {
+      trips,
+      tripRates,
+      tripIDs
+    } = await getDeductPointInfo(user.id, carID, transaction);
+    const point = trips.length + tripRates.length * 2;
+    await dbTools.deleteCar(user.id, carID, tripIDs, transaction);
+    await deductUserPoint(user.id, point, transaction);
     await transaction.commit();
     res.send(true);
   } catch (error) {
@@ -103,14 +125,18 @@ const deleteCar = async (req, res) => {
   }
 };
 
-const getDeductPoint = async (userID, carID, transaction) => {
+const getDeductPointInfo = async (userID, carID, transaction) => {
   const trips = await dbTools.getUserTrips(carID, transaction);
   let tripIDs = [];
   for (let trip of trips) {
     tripIDs.push(trip.id);
   }
   const tripRates = await dbTools.getTripRates(tripIDs, transaction);
-  return trips.length + tripRates.length * 2;
+  return {
+    trips,
+    tripRates,
+    tripIDs
+  };
 };
 
 const getCarDeductPoint = async (req, res) => {
@@ -118,7 +144,11 @@ const getCarDeductPoint = async (req, res) => {
   const transaction = await model.sequelize.transaction();
   const carID = req.params.carID;
   try {
-    const point = await getDeductPoint(user.id, carID, transaction);
+    const {
+      trips,
+      tripRates
+    } = await getDeductPointInfo(user.id, carID, transaction);
+    const point = trips.length + tripRates.length * 2;
     res.send({ 'total': point });
   } catch (error) {
     // TODO raise

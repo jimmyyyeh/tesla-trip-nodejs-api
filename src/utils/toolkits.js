@@ -19,4 +19,7 @@ const saveImage = (filename, string) => {
   });
 };
 
-module.exports = { saveImage, dateToSeason };
+module.exports = {
+  saveImage,
+  dateToSeason
+};
