@@ -9,7 +9,7 @@ const validator = validation.createValidator({});
 
 router.get('/:carID?', controller.getCars);
 
-router.post('/:carID', validator.body(payloadSchema.createCar), controller.createCar);
+router.post('/', validator.body(payloadSchema.createCar), controller.createCar);
 
 router.put('/:carID', validator.body(payloadSchema.updateCar), controller.updateCar);
 

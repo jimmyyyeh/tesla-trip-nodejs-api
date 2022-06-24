@@ -1,7 +1,6 @@
 const model = require('../server/models/models');
 const authTools = require('./auth-tools');
 const { Op } = require('sequelize');
-const { mode } = require('../../webpack.config');
 
 const upsertUser = async (payload, transaction) => {
   return await model.User.findOrCreate({
@@ -67,9 +66,37 @@ const getCars = async (userID, carID, transaction) => {
   });
 };
 
+const getCar = async(userID, carID, transaction) => {
+  const filter = [{ 'user_id': userID }, { 'id': carID }];
+  return await model.Car.findOne({
+    where: { [Op.and]: filter },
+    transaction: transaction
+  });
+};
+
+const createCar = async (userID, carModelID, payload, transaction) => {
+  return await model.Car.create(
+    {
+      user_id: userID,
+      car_model_id: carModelID,
+      manufacture_date: payload.manufacture_date,
+      has_image: !!payload.file
+    },
+    { transaction: transaction }
+  );
+};
+
 const deleteCar = async (userID, carID, transaction) => {
   const filter = [{ 'user_id': userID }, { 'id': carID }];
   return await model.Car.destroy({
+    where: { [Op.and]: filter },
+    transaction: transaction
+  });
+};
+
+const getCarModel = async (model_, spec, transaction) => {
+  const filter = [{ 'model': model_ }, { 'spec': spec }];
+  return await model.CarModel.findOne({
     where: { [Op.and]: filter },
     transaction: transaction
   });
@@ -87,6 +114,9 @@ module.exports = {
   getAdministrativeDistricts,
   getSuperChargers,
   getCars,
+  getCar,
+  createCar,
   deleteCar,
+  getCarModel,
   getCarModels,
 };

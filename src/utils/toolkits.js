@@ -1,3 +1,5 @@
+const fs = require('fs');
+
 const dateToSeason = (date) => {
   const date_ = new Date(date);
   const year = date_.getFullYear();
@@ -6,4 +8,15 @@ const dateToSeason = (date) => {
   return `${year}Q${season}`;
 };
 
-module.exports = { dateToSeason };
+const saveImage = (filename, string) => {
+  const base64Data = string.replace(/^data:image\/(jpeg|jpg|png);base64,/, '');
+  fs.mkdirSync('./src/static/image/car/', { recursive: true });
+  fs.writeFile(`./src/static/image/car/${filename}.jpg`, base64Data, 'base64', (error) => {
+    if (error) {
+      // TODO raise
+      console.log(error);
+    }
+  });
+};
+
+module.exports = { saveImage, dateToSeason };
