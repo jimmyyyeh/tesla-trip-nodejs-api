@@ -315,6 +315,11 @@ Car.init({
   modelName: 'car',
 });
 
+Car.hasOne(CarModel, {
+  sourceKey: 'car_model_id',
+  foreignKey: 'id'
+});
+
 class AdministrativeDistrict extends Model {
 }
 
@@ -372,6 +377,14 @@ Trip.init({
       key: 'id'
     },
     comment: '使用者id'
+  },
+  car_id: {
+    type: DataTypes.INTEGER,
+    references: {
+      model: Car,
+      key: 'id'
+    },
+    comment: '車輛id'
   },
   mileage: {
     type: DataTypes.INTEGER,
@@ -444,6 +457,16 @@ Trip.init({
   freezeTableName: true,
   timestamps: false,
   modelName: 'trip'
+});
+
+Trip.hasOne(Car, {
+  sourceKey: 'car_id',
+  foreignKey: 'id',
+});
+
+Trip.hasOne(SuperCharger, {
+  sourceKey: 'charger_id',
+  foreignKey: 'id'
 });
 
 class TripRate extends Model {

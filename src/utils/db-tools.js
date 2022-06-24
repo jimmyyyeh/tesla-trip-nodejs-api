@@ -1,6 +1,10 @@
 const model = require('../server/models/models');
 const authTools = require('./auth-tools');
-const { Op } = require('sequelize');
+const {
+  Op,
+  fn,
+  col
+} = require('sequelize');
 
 const upsertUser = async (payload, transaction) => {
   return await model.User.findOrCreate({
@@ -46,12 +50,6 @@ const getSuperChargers = async (transaction) => {
 };
 
 const getCars = async (userID, carID, transaction) => {
-  model.Car.hasOne(model.CarModel, {
-    foreignKey: 'id',
-  });
-
-  model.CarModel.belongsTo(model.Car);
-
   let filter = [{ 'user_id': userID }];
   if (carID) {
     filter.push({ 'id': carID });
@@ -75,15 +73,12 @@ const getCar = async (userID, carID, transaction) => {
 };
 
 const createCar = async (userID, carModelID, payload, transaction) => {
-  return await model.Car.create(
-    {
-      user_id: userID,
-      car_model_id: carModelID,
-      manufacture_date: payload.manufacture_date,
-      has_image: !!payload.file
-    },
-    { transaction: transaction }
-  );
+  return await model.Car.create({
+    user_id: userID,
+    car_model_id: carModelID,
+    manufacture_date: payload.manufacture_date,
+    has_image: !!payload.file
+  }, { transaction: transaction });
 };
 
 const deleteCar = async (userID, carID, tripIDs, transaction) => {
@@ -131,15 +126,76 @@ const getTripRates = async (tripIDs, transaction) => {
 };
 
 const createPointLog = async (userID, point, change, type, transaction) => {
-  await model.PointLog.create(
-    {
-      user_id: userID,
-      point: point,
-      change: change,
-      type: type
-    },
-    { transaction: transaction }
-  );
+  await model.PointLog.create({
+    user_id: userID,
+    point: point,
+    change: change,
+    type: type
+  }, { transaction: transaction });
+};
+
+const getTrips = async (userID, isMyTrip, chargerID, start, end, model_, spec, page, perPage, transaction) => {
+  const today = new Date();
+  const tzOffSet = (new Date()).getTimezoneOffset() * 60 * 1000;
+  let date = new Date(today.getTime() - 60 * 60 * 24 * 365 * 1000 - tzOffSet).toISOString();
+  let tripFilter = [];
+  let chargerFilter = [];
+  let carModelFilter = [];
+
+  tripFilter.push({ create_datetime: { [Op.gte]: date } });
+  if (isMyTrip) {
+    tripFilter.push({ user_id: userID });
+  }
+  if (start) {
+    tripFilter.push({ start: { [Op.like]: `%${start}%` } });
+  }
+  if (end) {
+    tripFilter.push({ end: { [Op.like]: `%${end}%` } });
+  }
+  if (chargerID) {
+    chargerFilter.push({ id: chargerID });
+  }
+  if (model_) {
+    carModelFilter.push({ model: { [Op.like]: `%${model_}%` } });
+  }
+  if (spec) {
+    carModelFilter.push({ spec: { [Op.like]: `%${spec}%` } });
+  }
+  const tripRateCount = await model.TripRate.findAll({
+    attributes: ['trip_id', [fn('COUNT', 'trip_id'), 'trip_rate_count'],],
+    group: ['trip_id'],
+  });
+
+  const {
+    count: tripCount,
+    rows: trips
+  } = await model.Trip.findAndCountAll({
+    order: col('create_datetime'),
+    include: [{
+      model: model.SuperCharger,
+      required: false,
+      attributes: ['id', 'name'],
+      where: chargerFilter,
+    }, {
+      model: model.Car,
+      attributes: ['id', 'manufacture_date'],
+      include: [{
+        model: model.CarModel,
+        attributes: ['id', 'model', 'spec'],
+        where: carModelFilter
+      },]
+    }],
+    where: { [Op.and]: tripFilter },
+    limit: perPage,
+    offset: (page - 1) * perPage,
+    transaction: transaction
+  });
+
+  return {
+    tripCount,
+    trips,
+    tripRateCount
+  };
 };
 
 module.exports = {
@@ -157,5 +213,6 @@ module.exports = {
   getCarModels,
   getUserTrips,
   getTripRates,
-  createPointLog
+  createPointLog,
+  getTrips,
 };

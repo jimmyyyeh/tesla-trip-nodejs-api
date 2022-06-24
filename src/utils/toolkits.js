@@ -19,7 +19,17 @@ const saveImage = (filename, string) => {
   });
 };
 
+const makePager = (page, perPage, total) => {
+  return {
+    page: page,
+    per_page: perPage,
+    total: total,
+    pages: Math.ceil(total / perPage),
+  }
+}
+
 module.exports = {
   saveImage,
-  dateToSeason
+  dateToSeason,
+  makePager
 };
