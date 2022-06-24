@@ -65,8 +65,13 @@ const updateCar = async (request, response) => {
     const carModel = await dbTools.getCarModel(request.body.model, request.body.spec, transaction);
     if (!carModel) {
       // TODO raise
+      response.send('car model is not exists');
     }
     const car = await dbTools.getCar(user.id, carModel.id, transaction);
+    if (!car) {
+      // TODO raise
+      response.send('car is not exists');
+    }
     const data = {
       car_model_id: carModel.id,
       manufacture_date: request.body.manufacture_date,

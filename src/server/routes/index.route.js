@@ -20,6 +20,6 @@ router.use('/super-charger', charger.router);
 // router.use('/product', product.router);
 // router.use('/qrcode', qrcode.router);
 router.use('/trip', trip.router);
-router.use('/tripRate', tripRate.router);
+router.use('/trip-rate', tripRate.router);
 
 module.exports = { router };

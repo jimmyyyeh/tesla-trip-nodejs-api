@@ -125,6 +125,30 @@ const getTripRates = async (tripIDs, transaction) => {
   });
 };
 
+const getTripRate = async (userID, tripID, transaction) => {
+  const filter = [{ user_id: userID }, { trip_id: tripID },];
+  return await model.TripRate.findOne({
+    where: filter,
+    transaction: transaction
+  });
+};
+
+const createTripRate = async (tripID, userID, transaction) => {
+  await model.TripRate.create({
+    trip_id: tripID,
+    user_id: userID
+  }, {
+    transaction: transaction
+  });
+};
+
+const deleteTripRate = async (tripRateID, transaction) => {
+  await model.TripRate.destroy({
+    where: { id: tripRateID },
+    transaction: transaction
+  });
+};
+
 const createPointLog = async (userID, point, change, type, transaction) => {
   await model.PointLog.create({
     user_id: userID,
@@ -198,8 +222,19 @@ const getTrips = async (userID, isMyTrip, chargerID, start, end, model_, spec, p
   };
 };
 
+const getTrip = async (userID, tripID, transaction) => {
+  const filter = [{ user_id: userID }, { id: tripID }];
+  return await model.Trip.findOne({
+    where: filter,
+    transaction: transaction
+  });
+};
+
 const createTrips = async (userID, payloads, transaction) => {
-  const data = payloads.map(payload => ({...payload, user_id: userID}));
+  const data = payloads.map(payload => ({
+    ...payload,
+    user_id: userID
+  }));
   await model.Trip.bulkCreate(data, { transaction: transaction });
 };
 
@@ -218,7 +253,11 @@ module.exports = {
   getCarModels,
   getUserTrips,
   getTripRates,
+  getTripRate,
+  createTripRate,
+  deleteTripRate,
   createPointLog,
   getTrips,
+  getTrip,
   createTrips,
 };
