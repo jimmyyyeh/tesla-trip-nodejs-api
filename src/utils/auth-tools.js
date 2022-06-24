@@ -18,10 +18,14 @@ const generateToken = (payload) => {
 };
 
 const decryptToken = (token) => {
+  if (!token.startsWith('Bearer')) {
+    // TODO raise
+    return null;
+  }
   const {
     payload,
     error
-  } = jwt.verify(token, config.secretKey);
+  } = jwt.verify(token.replace('Bearer ', ''), config.secretKey);
   if (error) {
     // TODO raise
     console.log(error);
