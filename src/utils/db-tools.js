@@ -67,6 +67,14 @@ const getCars = async (userID, carID, transaction) => {
   });
 };
 
+const deleteCar = async (userID, carID, transaction) => {
+  const filter = [{ 'user_id': userID }, { 'id': carID }];
+  return await model.Car.destroy({
+    where: { [Op.and]: filter },
+    transaction: transaction
+  });
+};
+
 const getCarModels = async (transaction) => {
   return await model.CarModel.findAll({ transaction: transaction });
 };
@@ -79,5 +87,6 @@ module.exports = {
   getAdministrativeDistricts,
   getSuperChargers,
   getCars,
+  deleteCar,
   getCarModels,
 };

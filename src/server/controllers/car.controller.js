@@ -36,8 +36,19 @@ const updateCar = (req, res) => {
 
 };
 
-const deleteCar = (req, res) => {
-
+const deleteCar = async (req, res) => {
+  const user = authTools.decryptToken(req.headers.authorization);
+  const transaction = await model.sequelize.transaction();
+  const carID = req.params.carID;
+  try {
+    await dbTools.deleteCar(user.id, carID, transaction);
+    await transaction.commit();
+    res.send(true);
+  } catch (error) {
+    await transaction.rollback();
+    // TODO raise
+    console.log(error);
+  }
 };
 
 const getCarDeductPoint = (req, res) => {
