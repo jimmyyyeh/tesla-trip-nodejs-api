@@ -11,7 +11,7 @@ const updateTripRate = async (request, response) => {
     const trip = await dbTools.getTrip(user.id, request.body.trip_id, transaction);
     if (!trip) {
       // TODO raise
-      response.send('trip is not exists');
+      response.send('trip does not exist');
     }
     const tripRater = await dbTools.getUserByID(user.id, transaction);
     const tripAuthor = await dbTools.getUserByID(trip.user_id, transaction);

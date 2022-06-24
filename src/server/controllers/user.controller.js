@@ -10,7 +10,7 @@ const signIn = async (request, response) => {
   try {
     const dbUser = await dbTools.getUserByUsername(request.body.username, transaction);
     if (!dbUser) {
-      response.send('user is not exists');
+      response.send('user does not exist');
       // TODO raise
     }
     if (!authTools.decryptPwd(dbUser.password, request.body.password)) {
@@ -72,14 +72,14 @@ const signUp = async (request, response) => {
 const verify = async (request, response) => {
   const id = await redisTools.getVerifyToken(request.body.token);
   if (!id) {
-    response.send('token is not exists');
+    response.send('token does not exist');
     // TODO raise
   }
   const transaction = await model.sequelize.transaction();
   try {
     const dbUser = await dbTools.getUserByID(id, transaction);
     if (!dbUser) {
-      response.send('user is not exists');
+      response.send('user does not exist');
       // TODO raise
     }
     const data = { is_verified: true };
@@ -99,7 +99,7 @@ const resendVerify = async (request, response) => {
   try {
     const dbUser = await dbTools.getUserByUsername(request.body.username, transaction);
     if (!dbUser) {
-      response.send('user is not exists');
+      response.send('user does not exist');
       // TODO raise
     }
     await mailTools.sendVerifyMail(dbUser.id, dbUser.email);
@@ -115,7 +115,7 @@ const requestResetPassword = async (request, response) => {
   try {
     const dbUser = await dbTools.getUserByEmail(request.body.email, transaction);
     if (!dbUser) {
-      response.send('user is not exists');
+      response.send('user does not exist');
       // TODO raise
     }
     await mailTools.sendResetPasswordMail(dbUser.id, dbUser.email);
@@ -131,7 +131,7 @@ const resetPassword = async (request, response) => {
   try {
     const id = await redisTools.getResetPasswordToken(request.body.token);
     if (!id) {
-      response.send('token is not exists');
+      response.send('token does not exist');
       // TODO raise
     }
     const dbUser = await dbTools.getUserByID(id, transaction);
