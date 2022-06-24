@@ -82,7 +82,7 @@ const verify = async (request, response) => {
       // TODO raise
     }
     const data = { is_verified: true };
-    await dbUser.update(data);
+    await dbUser.update(data, { transaction: transaction });
     await redisTools.delVerifyToken(request.body.token);
     response.send(true);
     await transaction.commit();
@@ -139,7 +139,7 @@ const resetPassword = async (request, response) => {
       // TODO raise
     }
     const data = { password: authTools.encryptPwd(request.body.password) };
-    await dbUser.update(data);
+    await dbUser.update(data, { transaction: transaction });
     await transaction.commit();
     response.send(true);
   } catch (error) {
@@ -166,7 +166,7 @@ const updateProfile = async (request, response) => {
     if (request.body.nickname) {
       data['nickname'] = request.body.nickname;
     }
-    await dbUser.update(data);
+    await dbUser.update(data, { transaction: transaction });
     await transaction.commit();
     const result = {
       id: dbUser.id,

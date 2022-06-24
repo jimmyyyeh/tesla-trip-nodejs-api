@@ -25,8 +25,8 @@ const makePager = (page, perPage, total) => {
     per_page: perPage,
     total: total,
     pages: Math.ceil(total / perPage),
-  }
-}
+  };
+};
 
 module.exports = {
   saveImage,

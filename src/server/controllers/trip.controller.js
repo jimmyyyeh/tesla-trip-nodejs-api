@@ -50,7 +50,7 @@ const getTrips = async (request, response) => {
       };
       results.push(result);
     }
-    const pager = toolkits.makePager(page, perPage, tripCount)
+    const pager = toolkits.makePager(page, perPage, tripCount);
     // TODO pager
     response.send(results);
   } catch (error) {

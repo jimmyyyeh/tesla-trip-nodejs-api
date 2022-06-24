@@ -76,7 +76,7 @@ const updateCar = async (request, response) => {
       car_model_id: carModel.id,
       manufacture_date: request.body.manufacture_date,
     };
-    await car.update(data);
+    await car.update(data, { transaction: transaction });
     const result = {
       id: car.id,
       car: `${carModel.model}-${carModel.spec}(${toolkits.dateToSeason(car.manufacture_date)})`,
@@ -98,9 +98,9 @@ const deductUserPoint = async (userID, point, transaction) => {
   const dbUser = await dbTools.getUserByID(userID, transaction);
   let deductPoint = dbUser.point;
   if (dbUser.point < point) {
-    await dbUser.update({ point: 0 });
+    await dbUser.update({ point: 0 }, { transaction: transaction });
   } else {
-    await dbUser.update({ point: deductPoint - point });
+    await dbUser.update({ point: deductPoint - point }, { transaction: transaction });
     deductPoint = deductPoint - point;
   }
   await dbTools.createPointLog(
