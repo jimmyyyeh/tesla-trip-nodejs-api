@@ -59,8 +59,18 @@ const getTrips = async (request, response) => {
   }
 };
 
-const createTrip = (request, response) => {
-
+const createTrip = async (request, response) => {
+  const user = authTools.decryptToken(request.headers.authorization);
+  const transaction = await model.sequelize.transaction();
+  try {
+    await dbTools.createTrips(user.id, request.body, transaction);
+    await transaction.commit();
+    response.send(true);
+  } catch (error) {
+    // TODO raise
+    await transaction.rollback();
+    console.log(error);
+  }
 };
 
 module.exports = {

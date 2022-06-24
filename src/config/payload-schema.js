@@ -75,32 +75,33 @@ const updateCar = Joi.object({
     .required(),
 });
 
-const createTrip = Joi.object({
-  car_id: Joi.number()
-    .required(),
-  mileage: Joi.number()
-    .required(),
-  consumption: Joi.number()
-    .required(),
-  total: Joi.number()
-    .required(),
-  start: Joi.string()
-    .required(),
-  end: Joi.string()
-    .required(),
-  start_battery_level: Joi.number()
-    .required(),
-  end_battery_level: Joi.number()
-    .required(),
-  is_charge: Joi.boolean()
-    .required(),
-  charger_id: Joi.number(),
-  charge: Joi.number(),
-  fee: Joi.number(),
-  trip_date: Joi.string()
-    .regex(/^\d{4}\-\d{2}\-\d{2}$/)
-    .required(),
-});
+const createTrip = Joi.array()
+  .items(Joi.object({
+    car_id: Joi.number()
+      .required(),
+    mileage: Joi.number()
+      .required(),
+    consumption: Joi.number()
+      .required(),
+    total: Joi.number()
+      .required(),
+    start: Joi.string()
+      .required(),
+    end: Joi.string()
+      .required(),
+    start_battery_level: Joi.number()
+      .required(),
+    end_battery_level: Joi.number()
+      .required(),
+    is_charge: Joi.boolean()
+      .required(),
+    charger_id: Joi.number(),
+    charge: Joi.number(),
+    fee: Joi.number(),
+    trip_date: Joi.string()
+      .regex(/^\d{4}\-\d{2}\-\d{2}$/)
+      .required(),
+  }));
 
 const updateTripRate = Joi.object({
   trip_id: Joi.number()

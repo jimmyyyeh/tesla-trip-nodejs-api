@@ -198,6 +198,11 @@ const getTrips = async (userID, isMyTrip, chargerID, start, end, model_, spec, p
   };
 };
 
+const createTrips = async (userID, payloads, transaction) => {
+  const data = payloads.map(payload => ({...payload, user_id: userID}));
+  await model.Trip.bulkCreate(data, { transaction: transaction });
+};
+
 module.exports = {
   upsertUser,
   getUserByUsername,
@@ -215,4 +220,5 @@ module.exports = {
   getTripRates,
   createPointLog,
   getTrips,
+  createTrips,
 };
