@@ -41,10 +41,15 @@ const getAdministrativeDistricts = async (transaction) => {
   return await model.AdministrativeDistrict.findAll({ transaction: transaction });
 };
 
+const getSuperChargers = async (transaction) => {
+  return await model.SuperCharger.findAll({ transaction: transaction });
+};
+
 module.exports = {
   upsertUser,
   getUserByUsername,
   getUserByID,
   getUserByEmail,
-  getAdministrativeDistricts
+  getAdministrativeDistricts,
+  getSuperChargers
 };

@@ -14,8 +14,8 @@ const getAdministrativeDistrict = async (req, res) => {
         results[city] = [];
       }
       const result = {
-        'id': administrativeDistrict.id,
-        'area': administrativeDistrict.area,
+        id: administrativeDistrict.id,
+        area: administrativeDistrict.area,
       };
       results[city].push(result);
     }
