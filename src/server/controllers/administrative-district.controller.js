@@ -2,8 +2,8 @@ const authTools = require('../../utils/auth-tools');
 const dbTools = require('../../utils/db-tools');
 const model = require('../models/models');
 
-const getAdministrativeDistrict = async (req, res) => {
-  const user = authTools.decryptToken(req.headers.authorization);
+const getAdministrativeDistrict = async (request, response) => {
+  const user = authTools.decryptToken(request.headers.authorization);
   const transaction = await model.sequelize.transaction();
   try {
     const administrativeDistricts = await dbTools.getAdministrativeDistrict(transaction);
@@ -19,7 +19,7 @@ const getAdministrativeDistrict = async (req, res) => {
       };
       results[city].push(result);
     }
-    res.send(results);
+    response.send(results);
   } catch (error) {
     // TODO raise
     console.log(error);

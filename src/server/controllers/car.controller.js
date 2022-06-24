@@ -4,10 +4,10 @@ const constant = require('../../config/constant');
 const toolkits = require('../../utils/toolkits');
 const model = require('../models/models');
 
-const getCars = async (req, res) => {
-  const user = authTools.decryptToken(req.headers.authorization);
+const getCars = async (request, response) => {
+  const user = authTools.decryptToken(request.headers.authorization);
   const transaction = await model.sequelize.transaction();
-  const carID = req.params.carID;
+  const carID = request.params.carID;
   try {
     const cars = await dbTools.getCars(user.id, carID, transaction);
     let results = [];
@@ -22,22 +22,22 @@ const getCars = async (req, res) => {
       };
       results.push(result);
     }
-    res.send(results);
+    response.send(results);
   } catch (error) {
     // TODO raise
     console.log(error);
   }
 };
 
-const createCar = async (req, res) => {
-  const user = authTools.decryptToken(req.headers.authorization);
+const createCar = async (request, response) => {
+  const user = authTools.decryptToken(request.headers.authorization);
   const transaction = await model.sequelize.transaction();
   try {
-    const carModel = await dbTools.getCarModel(req.body.model, req.body.spec, transaction);
+    const carModel = await dbTools.getCarModel(request.body.model, request.body.spec, transaction);
     if (!carModel) {
       // TODO raise
     }
-    const car = await dbTools.createCar(user.id, carModel.id, req.body, transaction);
+    const car = await dbTools.createCar(user.id, carModel.id, request.body, transaction);
     const result = {
       id: car.id,
       car: `${carModel.model}-${carModel.spec}(${toolkits.dateToSeason(car.manufacture_date)})`,
@@ -47,10 +47,10 @@ const createCar = async (req, res) => {
       has_image: car.has_image
     };
     if (car.has_image) {
-      toolkits.saveImage(car.id, req.body.file);
+      toolkits.saveImage(car.id, request.body.file);
     }
     await transaction.commit();
-    res.send(result);
+    response.send(result);
   } catch (error) {
     await transaction.rollback();
     // TODO raise
@@ -58,18 +58,18 @@ const createCar = async (req, res) => {
   }
 };
 
-const updateCar = async (req, res) => {
-  const user = authTools.decryptToken(req.headers.authorization);
+const updateCar = async (request, response) => {
+  const user = authTools.decryptToken(request.headers.authorization);
   const transaction = await model.sequelize.transaction();
   try {
-    const carModel = await dbTools.getCarModel(req.body.model, req.body.spec, transaction);
+    const carModel = await dbTools.getCarModel(request.body.model, request.body.spec, transaction);
     if (!carModel) {
       // TODO raise
     }
     const car = await dbTools.getCar(user.id, carModel.id, transaction);
     const data = {
       car_model_id: carModel.id,
-      manufacture_date: req.body.manufacture_date,
+      manufacture_date: request.body.manufacture_date,
     };
     await car.update(data);
     const result = {
@@ -81,7 +81,7 @@ const updateCar = async (req, res) => {
       has_image: car.has_image
     };
     await transaction.commit();
-    res.send(result);
+    response.send(result);
   } catch (error) {
     await transaction.rollback();
     // TODO raise
@@ -103,10 +103,10 @@ const deductUserPoint = async (userID, point, transaction) => {
   );
 };
 
-const deleteCar = async (req, res) => {
-  const user = authTools.decryptToken(req.headers.authorization);
+const deleteCar = async (request, response) => {
+  const user = authTools.decryptToken(request.headers.authorization);
   const transaction = await model.sequelize.transaction();
-  const carID = req.params.carID;
+  const carID = request.params.carID;
   try {
     const {
       trips,
@@ -117,7 +117,7 @@ const deleteCar = async (req, res) => {
     await dbTools.deleteCar(user.id, carID, tripIDs, transaction);
     await deductUserPoint(user.id, point, transaction);
     await transaction.commit();
-    res.send(true);
+    response.send(true);
   } catch (error) {
     await transaction.rollback();
     // TODO raise
@@ -139,17 +139,17 @@ const getDeductPointInfo = async (userID, carID, transaction) => {
   };
 };
 
-const getCarDeductPoint = async (req, res) => {
-  const user = authTools.decryptToken(req.headers.authorization);
+const getCarDeductPoint = async (request, response) => {
+  const user = authTools.decryptToken(request.headers.authorization);
   const transaction = await model.sequelize.transaction();
-  const carID = req.params.carID;
+  const carID = request.params.carID;
   try {
     const {
       trips,
       tripRates
     } = await getDeductPointInfo(user.id, carID, transaction);
     const point = trips.length + tripRates.length * 2;
-    res.send({ 'total': point });
+    response.send({ 'total': point });
   } catch (error) {
     // TODO raise
     console.log(error);

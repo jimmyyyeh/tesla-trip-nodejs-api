@@ -4,16 +4,16 @@ const redisTools = require('../../utils/redis-tools');
 const model = require('../models/models');
 const dbTools = require('../../utils/db-tools');
 
-const signIn = async (req, res) => {
+const signIn = async (request, response) => {
   const transaction = await model.sequelize.transaction();
   try {
-    const dbUser = await dbTools.getUserByUsername(req.body.username, transaction);
+    const dbUser = await dbTools.getUserByUsername(request.body.username, transaction);
     if (!dbUser) {
-      res.send('user not exists');
+      response.send('user not exists');
       // TODO raise
     }
-    if (!authTools.decryptPwd(dbUser.password, req.body.password)) {
-      res.send('user invalidate');
+    if (!authTools.decryptPwd(dbUser.password, request.body.password)) {
+      response.send('user invalidate');
       // TODO raise
     }
     let result = {
@@ -30,17 +30,17 @@ const signIn = async (req, res) => {
     };
     result['access_token'] = authTools.generateToken(result);
     result['token_type'] = 'bearer';
-    res.send(result);
+    response.send(result);
   } catch (error) {
     console.log(error);
     // TODO raise
   }
 };
 
-const signUp = async (req, res) => {
+const signUp = async (request, response) => {
   const transaction = await model.sequelize.transaction();
   try {
-    const [dbUser, created] = await dbTools.upsertUser(req.body, transaction);
+    const [dbUser, created] = await dbTools.upsertUser(request.body, transaction);
     if (created) {
       const result = {
         id: dbUser.id,
@@ -54,10 +54,10 @@ const signUp = async (req, res) => {
         role: dbUser.role,
         charger_id: dbUser.charger_id,
       };
-      res.send(result);
-      await mailTools.sendVerifyMail(dbUser.id, req.body.email);
+      response.send(result);
+      await mailTools.sendVerifyMail(dbUser.id, request.body.email);
     } else {
-      res.send('user already exists');
+      response.send('user already exists');
       // TODO raise
     }
     await transaction.commit();
@@ -68,23 +68,23 @@ const signUp = async (req, res) => {
   }
 };
 
-const verify = async (req, res) => {
-  const id = await redisTools.getVerifyToken(req.body.token);
+const verify = async (request, response) => {
+  const id = await redisTools.getVerifyToken(request.body.token);
   if (!id) {
-    res.send('token not exists');
+    response.send('token not exists');
     // TODO raise
   }
   const transaction = await model.sequelize.transaction();
   try {
     const dbUser = await dbTools.getUserByID(id, transaction);
     if (!dbUser) {
-      res.send('user not exists');
+      response.send('user not exists');
       // TODO raise
     }
     const data = { is_verified: true };
     await dbUser.update(data);
-    await redisTools.delVerifyToken(req.body.token);
-    res.send(true);
+    await redisTools.delVerifyToken(request.body.token);
+    response.send(true);
     await transaction.commit();
   } catch (error) {
     await transaction.rollback();
@@ -93,55 +93,55 @@ const verify = async (req, res) => {
   }
 };
 
-const resendVerify = async (req, res) => {
+const resendVerify = async (request, response) => {
   const transaction = await model.sequelize.transaction();
   try {
-    const dbUser = await dbTools.getUserByUsername(req.body.username, transaction);
+    const dbUser = await dbTools.getUserByUsername(request.body.username, transaction);
     if (!dbUser) {
-      res.send('user not exists');
+      response.send('user not exists');
       // TODO raise
     }
     await mailTools.sendVerifyMail(dbUser.id, dbUser.email);
-    res.send(true);
+    response.send(true);
   } catch (error) {
     console.log(error);
     // TODO raise
   }
 };
 
-const requestResetPassword = async (req, res) => {
+const requestResetPassword = async (request, response) => {
   const transaction = await model.sequelize.transaction();
   try {
-    const dbUser = await dbTools.getUserByEmail(req.body.email, transaction);
+    const dbUser = await dbTools.getUserByEmail(request.body.email, transaction);
     if (!dbUser) {
-      res.send('user not exists');
+      response.send('user not exists');
       // TODO raise
     }
     await mailTools.sendResetPasswordMail(dbUser.id, dbUser.email);
-    res.send(true);
+    response.send(true);
   } catch (error) {
     console.log(error);
     // TODO raise
   }
 };
 
-const resetPassword = async (req, res) => {
+const resetPassword = async (request, response) => {
   const transaction = await model.sequelize.transaction();
   try {
-    const id = await redisTools.getResetPasswordToken(req.body.token);
+    const id = await redisTools.getResetPasswordToken(request.body.token);
     if (!id) {
-      res.send('token not exists');
+      response.send('token not exists');
       // TODO raise
     }
     const dbUser = await dbTools.getUserByID(id, transaction);
-    if (dbUser.username !== req.body.username) {
-      res.send('token invalidate');
+    if (dbUser.username !== request.body.username) {
+      response.send('token invalidate');
       // TODO raise
     }
-    const data = { password: authTools.encryptPwd(req.body.password) };
+    const data = { password: authTools.encryptPwd(request.body.password) };
     await dbUser.update(data);
     await transaction.commit();
-    res.send(true);
+    response.send(true);
   } catch (error) {
     await transaction.rollback();
     console.log(error);
@@ -149,22 +149,22 @@ const resetPassword = async (req, res) => {
   }
 };
 
-const getProfile = (req, res) => {
-  const user = authTools.decryptToken(req.headers.authorization);
-  res.send(user);
+const getProfile = (request, response) => {
+  const user = authTools.decryptToken(request.headers.authorization);
+  response.send(user);
 };
 
-const updateProfile = async (req, res) => {
-  const user = authTools.decryptToken(req.headers.authorization);
+const updateProfile = async (request, response) => {
+  const user = authTools.decryptToken(request.headers.authorization);
   const transaction = await model.sequelize.transaction();
   try {
     const dbUser = await dbTools.getUserByUsername(user.username, transaction);
     const data = {};
-    if (req.body.email) {
-      data['email'] = req.body.email;
+    if (request.body.email) {
+      data['email'] = request.body.email;
     }
-    if (req.body.nickname) {
-      data['nickname'] = req.body.nickname;
+    if (request.body.nickname) {
+      data['nickname'] = request.body.nickname;
     }
     await dbUser.update(data);
     await transaction.commit();
@@ -180,7 +180,7 @@ const updateProfile = async (req, res) => {
       role: dbUser.role,
       charger_id: dbUser.charger_id,
     };
-    res.send(result);
+    response.send(result);
   } catch (error) {
     await transaction.rollback();
     console.log(error);

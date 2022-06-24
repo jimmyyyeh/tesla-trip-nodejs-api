@@ -1,4 +1,4 @@
-const updateTripRate = (req, res) => {
+const updateTripRate = (request, response) => {
 
 };
 

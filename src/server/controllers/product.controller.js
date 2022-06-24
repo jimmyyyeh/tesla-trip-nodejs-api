@@ -1,20 +1,20 @@
-const getProducts = (req, res) => {
+const getProducts = (request, response) => {
 
 };
 
-const createProduct = (req, res) => {
+const createProduct = (request, response) => {
 
 };
 
-const updateProduct = (req, res) => {
+const updateProduct = (request, response) => {
 
 };
 
-const deleteProduct = (req, res) => {
+const deleteProduct = (request, response) => {
 
 };
 
-const redeemProduct = (req, res) => {
+const redeemProduct = (request, response) => {
 
 };
 

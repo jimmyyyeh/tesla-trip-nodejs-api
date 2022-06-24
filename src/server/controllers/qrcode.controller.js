@@ -1,8 +1,8 @@
-const encodeProduct = (req, res) => {
+const encodeProduct = (request, response) => {
 
 };
 
-const decodeProduct = (req, res) => {
+const decodeProduct = (request, response) => {
 
 };
 

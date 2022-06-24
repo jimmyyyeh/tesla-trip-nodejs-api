@@ -1,8 +1,8 @@
-const getTrips = (req, res) => {
+const getTrips = (request, response) => {
 
 };
 
-const createTrip = (req, res) => {
+const createTrip = (request, response) => {
 
 };
 

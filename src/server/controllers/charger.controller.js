@@ -2,8 +2,8 @@ const authTools = require('../../utils/auth-tools');
 const model = require('../models/models');
 const dbTools = require('../../utils/db-tools');
 
-const getSuperCharger = async (req, res) => {
-  const user = authTools.decryptToken(req.headers.authorization);
+const getSuperCharger = async (request, response) => {
+  const user = authTools.decryptToken(request.headers.authorization);
   const transaction = await model.sequelize.transaction();
   try {
     const superChargers = await dbTools.getSuperChargers(transaction);
@@ -23,7 +23,7 @@ const getSuperCharger = async (req, res) => {
       };
       results.push(result);
     }
-    res.send(results);
+    response.send(results);
   } catch (error) {
     // TODO raise
     console.log(error);
