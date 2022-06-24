@@ -37,9 +37,14 @@ const getUserByEmail = async (email, transaction) => {
   });
 };
 
+const getAdministrativeDistricts = async (transaction) => {
+  return await model.AdministrativeDistrict.findAll({ transaction: transaction });
+};
+
 module.exports = {
   upsertUser,
   getUserByUsername,
   getUserByID,
   getUserByEmail,
+  getAdministrativeDistricts
 };
