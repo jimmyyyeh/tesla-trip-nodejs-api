@@ -1,6 +1,7 @@
 const model = require('../server/models/models');
 const authTools = require('./auth-tools');
 const { Op } = require('sequelize');
+const { mode } = require('../../webpack.config');
 
 const upsertUser = async (payload, transaction) => {
   return await model.User.findOrCreate({
@@ -45,11 +46,33 @@ const getSuperChargers = async (transaction) => {
   return await model.SuperCharger.findAll({ transaction: transaction });
 };
 
+const getCars = async (userID, carID, transaction) => {
+  model.Car.hasOne(model.CarModel, {
+    foreignKey: 'id',
+  });
+
+  model.CarModel.belongsTo(model.Car);
+
+  let filter = [{ 'user_id': userID }];
+  if (carID) {
+    filter.push({ 'id': carID });
+  }
+  return await model.Car.findAll({
+    include: [{
+      model: model.CarModel,
+      attributes: ['id', 'model', 'spec']
+    }],
+    where: { [Op.and]: filter },
+    transaction: transaction
+  });
+};
+
 module.exports = {
   upsertUser,
   getUserByUsername,
   getUserByID,
   getUserByEmail,
   getAdministrativeDistricts,
-  getSuperChargers
+  getSuperChargers,
+  getCars
 };

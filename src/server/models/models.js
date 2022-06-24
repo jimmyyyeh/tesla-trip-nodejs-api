@@ -312,7 +312,7 @@ Car.init({
   sequelize,
   freezeTableName: true,
   timestamps: false,
-  modelName: 'car'
+  modelName: 'car',
 });
 
 class AdministrativeDistrict extends Model {
