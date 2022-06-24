@@ -3,6 +3,7 @@ const mailTools = require('../../utils/mail-tools');
 const redisTools = require('../../utils/redis-tools');
 const model = require('../models/models');
 const dbTools = require('../../utils/db-tools');
+const toolkits = require('../../utils/toolkits');
 
 const signIn = async (request, response) => {
   const transaction = await model.sequelize.transaction();
@@ -16,7 +17,7 @@ const signIn = async (request, response) => {
       response.send('user invalidate');
       // TODO raise
     }
-    let result = {
+    let results = {
       id: dbUser.id,
       username: dbUser.username,
       nickname: dbUser.nickname,
@@ -28,9 +29,9 @@ const signIn = async (request, response) => {
       role: dbUser.role,
       charger_id: dbUser.charger_id,
     };
-    result['access_token'] = authTools.generateToken(result);
-    result['token_type'] = 'bearer';
-    response.send(result);
+    results['access_token'] = authTools.generateToken(results);
+    results['token_type'] = 'bearer';
+    response.send(toolkits.packageResponse(results, null));
   } catch (error) {
     console.log(error);
     // TODO raise
@@ -42,7 +43,7 @@ const signUp = async (request, response) => {
   try {
     const [dbUser, created] = await dbTools.upsertUser(request.body, transaction);
     if (created) {
-      const result = {
+      const results = {
         id: dbUser.id,
         username: dbUser.username,
         nickname: dbUser.nickname,
@@ -54,8 +55,8 @@ const signUp = async (request, response) => {
         role: dbUser.role,
         charger_id: dbUser.charger_id,
       };
-      response.send(result);
       await mailTools.sendVerifyMail(dbUser.id, request.body.email);
+      response.send(toolkits.packageResponse(results, null));
     } else {
       response.send('user already exists');
       // TODO raise
@@ -84,7 +85,7 @@ const verify = async (request, response) => {
     const data = { is_verified: true };
     await dbUser.update(data, { transaction: transaction });
     await redisTools.delVerifyToken(request.body.token);
-    response.send(true);
+    response.send(toolkits.packageResponse(true, null));
     await transaction.commit();
   } catch (error) {
     await transaction.rollback();
@@ -102,7 +103,7 @@ const resendVerify = async (request, response) => {
       // TODO raise
     }
     await mailTools.sendVerifyMail(dbUser.id, dbUser.email);
-    response.send(true);
+    response.send(toolkits.packageResponse(true, null));
   } catch (error) {
     console.log(error);
     // TODO raise
@@ -118,7 +119,7 @@ const requestResetPassword = async (request, response) => {
       // TODO raise
     }
     await mailTools.sendResetPasswordMail(dbUser.id, dbUser.email);
-    response.send(true);
+    response.send(toolkits.packageResponse(true, null));
   } catch (error) {
     console.log(error);
     // TODO raise
@@ -141,7 +142,7 @@ const resetPassword = async (request, response) => {
     const data = { password: authTools.encryptPwd(request.body.password) };
     await dbUser.update(data, { transaction: transaction });
     await transaction.commit();
-    response.send(true);
+    response.send(toolkits.packageResponse(true, null));
   } catch (error) {
     await transaction.rollback();
     console.log(error);
@@ -168,7 +169,7 @@ const updateProfile = async (request, response) => {
     }
     await dbUser.update(data, { transaction: transaction });
     await transaction.commit();
-    const result = {
+    const results = {
       id: dbUser.id,
       username: dbUser.username,
       nickname: dbUser.nickname,
@@ -180,7 +181,7 @@ const updateProfile = async (request, response) => {
       role: dbUser.role,
       charger_id: dbUser.charger_id,
     };
-    response.send(result);
+    response.send(toolkits.packageResponse(results, null));
   } catch (error) {
     await transaction.rollback();
     console.log(error);

@@ -1,5 +1,6 @@
 const authTools = require('../../utils/auth-tools');
 const dbTools = require('../../utils/db-tools');
+const toolkits = require('../../utils/toolkits');
 const model = require('../models/models');
 
 const getAdministrativeDistrict = async (request, response) => {
@@ -19,7 +20,7 @@ const getAdministrativeDistrict = async (request, response) => {
       };
       results[city].push(result);
     }
-    response.send(results);
+    response.send(toolkits.packageResponse(results, null));
   } catch (error) {
     // TODO raise
     console.log(error);

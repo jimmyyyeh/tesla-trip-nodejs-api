@@ -2,6 +2,7 @@ const authTools = require('../../utils/auth-tools');
 const dbTools = require('../../utils/db-tools');
 const model = require('../models/models');
 const { col } = require('sequelize');
+const toolkits = require('../../utils/toolkits');
 
 const updateTripRate = async (request, response) => {
   const user = authTools.decryptToken(request.headers.authorization);
@@ -30,7 +31,7 @@ const updateTripRate = async (request, response) => {
         await tripAuthor.update({ point: point }, { transaction: transaction });
       }
     }
-    response.send(true);
+    response.send(toolkits.packageResponse(true, null));
     await transaction.commit();
   } catch (error) {
     console.log(error);

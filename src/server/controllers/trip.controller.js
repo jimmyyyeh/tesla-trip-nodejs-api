@@ -52,7 +52,7 @@ const getTrips = async (request, response) => {
     }
     const pager = toolkits.makePager(page, perPage, tripCount);
     // TODO pager
-    response.send(results);
+    response.send(toolkits.packageResponse(results, pager));
   } catch (error) {
     // TODO raise
     console.log(error);
@@ -65,7 +65,7 @@ const createTrip = async (request, response) => {
   try {
     await dbTools.createTrips(user.id, request.body, transaction);
     await transaction.commit();
-    response.send(true);
+    response.send(toolkits.packageResponse(true, null));
   } catch (error) {
     // TODO raise
     await transaction.rollback();

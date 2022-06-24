@@ -1,6 +1,7 @@
 const authTools = require('../../utils/auth-tools');
 const model = require('../models/models');
 const dbTools = require('../../utils/db-tools');
+const toolkits = require('../../utils/toolkits');
 
 const getSuperCharger = async (request, response) => {
   const user = authTools.decryptToken(request.headers.authorization);
@@ -23,7 +24,7 @@ const getSuperCharger = async (request, response) => {
       };
       results.push(result);
     }
-    response.send(results);
+    response.send(toolkits.packageResponse(results, null));
   } catch (error) {
     // TODO raise
     console.log(error);

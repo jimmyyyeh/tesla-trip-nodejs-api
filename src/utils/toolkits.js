@@ -28,8 +28,23 @@ const makePager = (page, perPage, total) => {
   };
 };
 
+const packageResponse = (results, pager) => {
+  if (typeof (results) === 'boolean') {
+    return {
+      results: {success: results},
+      pager: pager,
+    };
+  } else {
+    return {
+      data: results,
+      pager: pager,
+    };
+  }
+};
+
 module.exports = {
   saveImage,
   dateToSeason,
-  makePager
+  makePager,
+  packageResponse
 };

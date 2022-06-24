@@ -22,7 +22,7 @@ const getCars = async (request, response) => {
       };
       results.push(result);
     }
-    response.send(results);
+    response.send(toolkits.packageResponse(results, null));
   } catch (error) {
     // TODO raise
     console.log(error);
@@ -38,7 +38,7 @@ const createCar = async (request, response) => {
       // TODO raise
     }
     const car = await dbTools.createCar(user.id, carModel.id, request.body, transaction);
-    const result = {
+    const results = {
       id: car.id,
       car: `${carModel.model}-${carModel.spec}(${toolkits.dateToSeason(car.manufacture_date)})`,
       model: car.model,
@@ -50,7 +50,7 @@ const createCar = async (request, response) => {
       toolkits.saveImage(car.id, request.body.file);
     }
     await transaction.commit();
-    response.send(result);
+    response.send(toolkits.packageResponse(results, null));
   } catch (error) {
     await transaction.rollback();
     // TODO raise
@@ -77,7 +77,7 @@ const updateCar = async (request, response) => {
       manufacture_date: request.body.manufacture_date,
     };
     await car.update(data, { transaction: transaction });
-    const result = {
+    const results = {
       id: car.id,
       car: `${carModel.model}-${carModel.spec}(${toolkits.dateToSeason(car.manufacture_date)})`,
       model: car.model,
@@ -86,7 +86,7 @@ const updateCar = async (request, response) => {
       has_image: car.has_image
     };
     await transaction.commit();
-    response.send(result);
+    response.send(toolkits.packageResponse(results, null));
   } catch (error) {
     await transaction.rollback();
     // TODO raise
@@ -122,7 +122,7 @@ const deleteCar = async (request, response) => {
     await dbTools.deleteCar(user.id, carID, tripIDs, transaction);
     await deductUserPoint(user.id, point, transaction);
     await transaction.commit();
-    response.send(true);
+    response.send(toolkits.packageResponse(true, null));
   } catch (error) {
     await transaction.rollback();
     // TODO raise
@@ -154,7 +154,8 @@ const getCarDeductPoint = async (request, response) => {
       tripRates
     } = await getDeductPointInfo(user.id, carID, transaction);
     const point = trips.length + tripRates.length * 2;
-    response.send({ 'total': point });
+    const results = {total: point};
+    response.send(toolkits.packageResponse(results, null));
   } catch (error) {
     // TODO raise
     console.log(error);

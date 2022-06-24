@@ -1,6 +1,7 @@
 const authTools = require('../../utils/auth-tools');
 const dbTools = require('../../utils/db-tools');
 const model = require('../models/models');
+const toolkits = require('../../utils/toolkits');
 
 const getCarModel = async (request, response) => {
   const user = authTools.decryptToken(request.headers.authorization);
@@ -16,7 +17,7 @@ const getCarModel = async (request, response) => {
       };
       results.push(result);
     }
-    response.send(results);
+    response.send(toolkits.packageResponse(results, null));
   } catch (error) {
     // TODO raise
     console.log(error);
