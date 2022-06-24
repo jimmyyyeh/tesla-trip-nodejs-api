@@ -67,6 +67,10 @@ const getCars = async (userID, carID, transaction) => {
   });
 };
 
+const getCarModels = async (transaction) => {
+  return await model.CarModel.findAll({ transaction: transaction });
+};
+
 module.exports = {
   upsertUser,
   getUserByUsername,
@@ -74,5 +78,6 @@ module.exports = {
   getUserByEmail,
   getAdministrativeDistricts,
   getSuperChargers,
-  getCars
+  getCars,
+  getCarModels,
 };

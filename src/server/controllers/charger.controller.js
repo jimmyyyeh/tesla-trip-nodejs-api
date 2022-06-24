@@ -1,6 +1,7 @@
 const authTools = require('../../utils/auth-tools');
 const model = require('../models/models');
 const dbTools = require('../../utils/db-tools');
+
 const getSuperCharger = async (req, res) => {
   const user = authTools.decryptToken(req.headers.authorization);
   const transaction = await model.sequelize.transaction();
@@ -19,7 +20,7 @@ const getSuperCharger = async (req, res) => {
         park_fee: superCharger.park_fee,
         charger_fee: superCharger.charger_fee,
         version: superCharger.version
-      }
+      };
       results.push(result);
     }
     res.send(results);

@@ -3,11 +3,6 @@ const dbTools = require('../../utils/db-tools');
 const toolkits = require('../../utils/toolkits');
 const model = require('../models/models');
 
-
-const getCarModel = (req, res) => {
-
-};
-
 const getCars = async (req, res) => {
   const user = authTools.decryptToken(req.headers.authorization);
   const transaction = await model.sequelize.transaction();
@@ -23,7 +18,7 @@ const getCars = async (req, res) => {
         spec: car.spec,
         manufacture_date: car.manufacture_date,
         has_image: car.has_image
-      }
+      };
       results.push(result);
     }
     res.send(results);
@@ -50,7 +45,6 @@ const getCarDeductPoint = (req, res) => {
 };
 
 module.exports = {
-  getCarModel,
   getCars,
   createCar,
   updateCar,
