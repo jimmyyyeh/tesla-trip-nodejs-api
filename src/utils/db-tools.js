@@ -66,7 +66,7 @@ const getCars = async (userID, carID, transaction) => {
   });
 };
 
-const getCar = async(userID, carID, transaction) => {
+const getCar = async (userID, carID, transaction) => {
   const filter = [{ 'user_id': userID }, { 'id': carID }];
   return await model.Car.findOne({
     where: { [Op.and]: filter },
@@ -106,6 +106,20 @@ const getCarModels = async (transaction) => {
   return await model.CarModel.findAll({ transaction: transaction });
 };
 
+const getUserTrips = async (carID, transaction) => {
+  return await model.Trip.findAll({
+    where: { car_id: carID },
+    transaction: transaction
+  });
+};
+
+const getTripRates = async (tripIDs, transaction) => {
+  return await model.TripRate.findAll({
+    where: { trip_id: { [Op.in]: tripIDs } },
+    transaction: transaction
+  });
+};
+
 module.exports = {
   upsertUser,
   getUserByUsername,
@@ -119,4 +133,6 @@ module.exports = {
   deleteCar,
   getCarModel,
   getCarModels,
+  getUserTrips,
+  getTripRates,
 };

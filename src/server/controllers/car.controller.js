@@ -69,7 +69,7 @@ const updateCar = async (req, res) => {
     const data = {
       car_model_id: carModel.id,
       manufacture_date: req.body.manufacture_date,
-    }
+    };
     await car.update(data);
     const result = {
       id: car.id,
@@ -103,7 +103,27 @@ const deleteCar = async (req, res) => {
   }
 };
 
-const getCarDeductPoint = (req, res) => {
+const getDeductPoint = async (userID, carID, transaction) => {
+  const trips = await dbTools.getUserTrips(carID, transaction);
+  let tripIDs = [];
+  for (let trip of trips) {
+    tripIDs.push(trip.id);
+  }
+  const tripRates = await dbTools.getTripRates(tripIDs, transaction);
+  return trips.length + tripRates.length * 2;
+};
+
+const getCarDeductPoint = async (req, res) => {
+  const user = authTools.decryptToken(req.headers.authorization);
+  const transaction = await model.sequelize.transaction();
+  const carID = req.params.carID;
+  try {
+    const point = await getDeductPoint(user.id, carID, transaction);
+    res.send({ 'total': point });
+  } catch (error) {
+    // TODO raise
+    console.log(error);
+  }
 
 };
 
