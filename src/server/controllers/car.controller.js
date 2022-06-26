@@ -34,7 +34,7 @@ const getCars = async (request, response) => {
     if (response.headersSent) {
       console.log(error);
     } else {
-      ErrorHandler(new InternalServerError(response, 'internal server error', errorCodes.INTERNAL_SERVER_ERROR)); 
+      ErrorHandler.error(new InternalServerError(response, 'internal server error', errorCodes.INTERNAL_SERVER_ERROR));
     }
   }
 };
@@ -45,7 +45,7 @@ const createCar = async (request, response) => {
   try {
     const carModel = await dbTools.getCarModel(request.body.model, request.body.spec, transaction);
     if (!carModel) {
-      ErrorHandler(new BadRequestError(response, 'car model invalidate', errorCodes.REQUEST_DATA_ERROR));
+      ErrorHandler.error(new BadRequestError(response, 'car model invalidate', errorCodes.REQUEST_DATA_ERROR));
     }
     const car = await dbTools.createCar(user.id, carModel.id, request.body, transaction);
     const results = {
@@ -63,7 +63,7 @@ const createCar = async (request, response) => {
     response.send(toolkits.packageResponse(results, null));
   } catch (error) {
     await transaction.rollback();
-    ErrorHandler(new InternalServerError(response, 'internal server error', errorCodes.INTERNAL_SERVER_ERROR));
+    ErrorHandler.error(new InternalServerError(response, 'internal server error', errorCodes.INTERNAL_SERVER_ERROR));
   }
 };
 
@@ -73,11 +73,11 @@ const updateCar = async (request, response) => {
   try {
     const carModel = await dbTools.getCarModel(request.body.model, request.body.spec, transaction);
     if (!carModel) {
-      ErrorHandler(new BadRequestError(response, 'car model invalidate', errorCodes.REQUEST_DATA_ERROR));
+      ErrorHandler.error(new BadRequestError(response, 'car model invalidate', errorCodes.REQUEST_DATA_ERROR));
     }
     const car = await dbTools.getCar(user.id, carModel.id, transaction);
     if (!car) {
-      ErrorHandler(new NotFoundError(response, 'car not exist', errorCodes.DATA_NOT_FOUND));
+      ErrorHandler.error(new NotFoundError(response, 'car not exist', errorCodes.DATA_NOT_FOUND));
     }
     const data = {
       car_model_id: carModel.id,
@@ -96,7 +96,7 @@ const updateCar = async (request, response) => {
     response.send(toolkits.packageResponse(results, null));
   } catch (error) {
     await transaction.rollback();
-    ErrorHandler(new InternalServerError(response, 'internal server error', errorCodes.INTERNAL_SERVER_ERROR));
+    ErrorHandler.error(new InternalServerError(response, 'internal server error', errorCodes.INTERNAL_SERVER_ERROR));
   }
 };
 
@@ -131,7 +131,7 @@ const deleteCar = async (request, response) => {
     response.send(toolkits.packageResponse(true, null));
   } catch (error) {
     await transaction.rollback();
-    ErrorHandler(new InternalServerError(response, 'internal server error', errorCodes.INTERNAL_SERVER_ERROR));
+    ErrorHandler.error(new InternalServerError(response, 'internal server error', errorCodes.INTERNAL_SERVER_ERROR));
   }
 };
 
@@ -165,7 +165,7 @@ const getCarDeductPoint = async (request, response) => {
     if (response.headersSent) {
       console.log(error);
     } else {
-      ErrorHandler(new InternalServerError(response, 'internal server error', errorCodes.INTERNAL_SERVER_ERROR)); 
+      ErrorHandler.error(new InternalServerError(response, 'internal server error', errorCodes.INTERNAL_SERVER_ERROR));
     }
   }
 

@@ -17,6 +17,8 @@ const errorCodes = {
   PARAMETER_ERROR: 2001,  // 參數錯誤
   DATA_NOT_FOUND: 2022,  // 資料不存在
   REQUEST_DATA_ERROR: 2023, // 請求資料有誤
+  METHOD_NOT_ALLOW: 2024, // 請求method錯誤
+  URL_NOT_FOUND: 2025, // 請求url不存在
 
   INSUFFICIENT_POINT: 3001,  // 點數不足
   INSUFFICIENT_PRODUCT_STOCK: 3002,  // 庫存不足

@@ -3,12 +3,21 @@ const validation = require('express-joi-validation');
 
 const controller = require('../controllers/qrcode.controller');
 const payloadSchema = require('../../config/payload-schema');
+const { MiddlewareError } = require('../../utils/errors');
 
 const router = express.Router();
 const validator = validation.createValidator({});
 
-router.get('/product/:token', controller.decodeProduct);
+router.route('/product/:token')
+  .get(controller.decodeProduct)
+  .all(
+    MiddlewareError.methodNotAllow,
+  );
 
-router.post('/product', validator.body(payloadSchema.encodeProduct), controller.encodeProduct);
+router.route('/product')
+  .post(validator.body(payloadSchema.encodeProduct), controller.encodeProduct)
+  .all(
+    MiddlewareError.methodNotAllow,
+  );
 
 module.exports = { router };

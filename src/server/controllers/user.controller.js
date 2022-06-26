@@ -17,10 +17,10 @@ const signIn = async (request, response) => {
   try {
     const dbUser = await dbTools.getUserByUsername(request.body.username, transaction);
     if (!dbUser) {
-      ErrorHandler(new UnauthorizedError(response, 'user does not exist', errorCodes.USER_NOT_EXIST));
+      ErrorHandler.error(new UnauthorizedError(response, 'user does not exist', errorCodes.USER_NOT_EXIST));
     }
     if (!authTools.decryptPwd(dbUser.password, request.body.password)) {
-      ErrorHandler(new UnauthorizedError(response, 'user invalidate', errorCodes.USER_INVALIDATE));
+      ErrorHandler.error(new UnauthorizedError(response, 'user invalidate', errorCodes.USER_INVALIDATE));
     }
     let results = {
       id: dbUser.id,
@@ -41,7 +41,7 @@ const signIn = async (request, response) => {
     if (response.headersSent) {
       console.log(error);
     } else {
-      ErrorHandler(new InternalServerError(response, 'internal server error', errorCodes.INTERNAL_SERVER_ERROR));
+      ErrorHandler.error(new InternalServerError(response, 'internal server error', errorCodes.INTERNAL_SERVER_ERROR));
     }
   }
 };
@@ -66,25 +66,25 @@ const signUp = async (request, response) => {
       await mailTools.sendVerifyMail(dbUser.id, request.body.email);
       response.send(toolkits.packageResponse(results, null));
     } else {
-      ErrorHandler(new ResourceConflictError(response, 'user already exist', errorCodes.USER_ALREADY_EXIST));
+      ErrorHandler.error(new ResourceConflictError(response, 'user already exist', errorCodes.USER_ALREADY_EXIST));
     }
     await transaction.commit();
   } catch (error) {
     await transaction.rollback();
-    ErrorHandler(new InternalServerError(response, 'internal server error', errorCodes.INTERNAL_SERVER_ERROR));
+    ErrorHandler.error(new InternalServerError(response, 'internal server error', errorCodes.INTERNAL_SERVER_ERROR));
   }
 };
 
 const verify = async (request, response) => {
   const id = await redisTools.getVerifyToken(request.body.token);
   if (!id) {
-    ErrorHandler(new UnauthorizedError(response, 'token not exist', errorCodes.TOKEN_MISSING));
+    ErrorHandler.error(new UnauthorizedError(response, 'token not exist', errorCodes.TOKEN_MISSING));
   }
   const transaction = await model.sequelize.transaction();
   try {
     const dbUser = await dbTools.getUserByID(id, transaction);
     if (!dbUser) {
-      ErrorHandler(new UnauthorizedError(response, 'user not exist', errorCodes.USER_NOT_EXIST));
+      ErrorHandler.error(new UnauthorizedError(response, 'user not exist', errorCodes.USER_NOT_EXIST));
     }
     const data = { is_verified: true };
     await dbUser.update(data, { transaction: transaction });
@@ -93,7 +93,7 @@ const verify = async (request, response) => {
     await transaction.commit();
   } catch (error) {
     await transaction.rollback();
-    ErrorHandler(new InternalServerError(response, 'internal server error', errorCodes.INTERNAL_SERVER_ERROR));
+    ErrorHandler.error(new InternalServerError(response, 'internal server error', errorCodes.INTERNAL_SERVER_ERROR));
   }
 };
 
@@ -102,7 +102,7 @@ const resendVerify = async (request, response) => {
   try {
     const dbUser = await dbTools.getUserByUsername(request.body.username, transaction);
     if (!dbUser) {
-      ErrorHandler(new UnauthorizedError(response, 'user not exist', errorCodes.USER_NOT_EXIST));
+      ErrorHandler.error(new UnauthorizedError(response, 'user not exist', errorCodes.USER_NOT_EXIST));
     }
     await mailTools.sendVerifyMail(dbUser.id, dbUser.email);
     response.send(toolkits.packageResponse(true, null));
@@ -110,7 +110,7 @@ const resendVerify = async (request, response) => {
     if (response.headersSent) {
       console.log(error);
     } else {
-      ErrorHandler(new InternalServerError(response, 'internal server error', errorCodes.INTERNAL_SERVER_ERROR));
+      ErrorHandler.error(new InternalServerError(response, 'internal server error', errorCodes.INTERNAL_SERVER_ERROR));
     }
   }
 };
@@ -120,7 +120,7 @@ const requestResetPassword = async (request, response) => {
   try {
     const dbUser = await dbTools.getUserByEmail(request.body.email, transaction);
     if (!dbUser) {
-      ErrorHandler(new UnauthorizedError(response, 'user not exist', errorCodes.USER_NOT_EXIST));
+      ErrorHandler.error(new UnauthorizedError(response, 'user not exist', errorCodes.USER_NOT_EXIST));
     }
     await mailTools.sendResetPasswordMail(dbUser.id, dbUser.email);
     response.send(toolkits.packageResponse(true, null));
@@ -128,7 +128,7 @@ const requestResetPassword = async (request, response) => {
     if (response.headersSent) {
       console.log(error);
     } else {
-      ErrorHandler(new InternalServerError(response, 'internal server error', errorCodes.INTERNAL_SERVER_ERROR));
+      ErrorHandler.error(new InternalServerError(response, 'internal server error', errorCodes.INTERNAL_SERVER_ERROR));
     }
   }
 };
@@ -138,11 +138,11 @@ const resetPassword = async (request, response) => {
   try {
     const id = await redisTools.getResetPasswordToken(request.body.token);
     if (!id) {
-      ErrorHandler(new UnauthorizedError(response, 'token not exist', errorCodes.TOKEN_MISSING));
+      ErrorHandler.error(new UnauthorizedError(response, 'token not exist', errorCodes.TOKEN_MISSING));
     }
     const dbUser = await dbTools.getUserByID(id, transaction);
     if (dbUser.username !== request.body.username) {
-      ErrorHandler(new UnauthorizedError(response, 'token invalidate', errorCodes.TOKEN_INVALIDATE));
+      ErrorHandler.error(new UnauthorizedError(response, 'token invalidate', errorCodes.TOKEN_INVALIDATE));
     }
     const data = { password: authTools.encryptPwd(request.body.password) };
     await dbUser.update(data, { transaction: transaction });
@@ -150,7 +150,7 @@ const resetPassword = async (request, response) => {
     response.send(toolkits.packageResponse(true, null));
   } catch (error) {
     await transaction.rollback();
-    ErrorHandler(new InternalServerError(response, 'internal server error', errorCodes.INTERNAL_SERVER_ERROR));
+    ErrorHandler.error(new InternalServerError(response, 'internal server error', errorCodes.INTERNAL_SERVER_ERROR));
   }
 };
 
@@ -188,7 +188,7 @@ const updateProfile = async (request, response) => {
     response.send(toolkits.packageResponse(results, null));
   } catch (error) {
     await transaction.rollback();
-    ErrorHandler(new InternalServerError(response, 'internal server error', errorCodes.INTERNAL_SERVER_ERROR));
+    ErrorHandler.error(new InternalServerError(response, 'internal server error', errorCodes.INTERNAL_SERVER_ERROR));
   }
 };
 

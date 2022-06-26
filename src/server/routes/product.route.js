@@ -3,18 +3,24 @@ const validation = require('express-joi-validation');
 
 const controller = require('../controllers/product.controller');
 const payloadSchema = require('../../config/payload-schema');
+const { MiddlewareError } = require('../../utils/errors');
 
 const router = express.Router();
 const validator = validation.createValidator({});
 
-router.get('/:productID?', controller.getProducts);
+router.route('/:productID?')
+  .get(controller.getProducts)
+  .post(validator.body(payloadSchema.createProduct), controller.createProduct)
+  .put(validator.body(payloadSchema.updateProduct), controller.updateProduct)
+  .delete(controller.deleteProduct)
+  .all(
+    MiddlewareError.methodNotAllow,
+  );
 
-router.post('/:productID', validator.body(payloadSchema.createProduct), controller.createProduct);
-
-router.put('/:productID', validator.body(payloadSchema.updateProduct), controller.updateProduct);
-
-router.delete('/:productID', controller.deleteProduct);
-
-router.post('/redeem-product/:token', controller.redeemProduct);
+router.route('/redeem-product/:token')
+  .post(controller.redeemProduct)
+  .all(
+    MiddlewareError.methodNotAllow,
+  );
 
 module.exports = { router };

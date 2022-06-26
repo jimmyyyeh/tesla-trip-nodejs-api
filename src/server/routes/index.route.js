@@ -8,6 +8,7 @@ const charger = require('./charger.route');
 // const qrcode = require('./qrcode.route');
 const trip = require('./trip.route');
 const tripRate = require('./trip-rate.route');
+const { MiddlewareError } = require('../../utils/errors');
 
 const router = express.Router();
 
@@ -21,5 +22,9 @@ router.use('/super-charger', charger.router);
 // router.use('/qrcode', qrcode.router);
 router.use('/trip', trip.router);
 router.use('/trip-rate', tripRate.router);
+
+router.all('*',
+  MiddlewareError.notFoundError,
+);
 
 module.exports = { router };

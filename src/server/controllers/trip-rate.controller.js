@@ -16,7 +16,7 @@ const updateTripRate = async (request, response) => {
   try {
     const trip = await dbTools.getTrip(user.id, request.body.trip_id, transaction);
     if (!trip) {
-      ErrorHandler(new NotFoundError(response, 'trip not exist', errorCodes.DATA_NOT_FOUND));
+      ErrorHandler.error(new NotFoundError(response, 'trip not exist', errorCodes.DATA_NOT_FOUND));
     }
     const tripRater = await dbTools.getUserByID(user.id, transaction);
     const tripAuthor = await dbTools.getUserByID(trip.user_id, transaction);
@@ -40,7 +40,7 @@ const updateTripRate = async (request, response) => {
     await transaction.commit();
   } catch (error) {
     await transaction.rollback();
-    ErrorHandler(new InternalServerError(response, 'internal server error', errorCodes.INTERNAL_SERVER_ERROR));
+    ErrorHandler.error(new InternalServerError(response, 'internal server error', errorCodes.INTERNAL_SERVER_ERROR));
   }
 };
 

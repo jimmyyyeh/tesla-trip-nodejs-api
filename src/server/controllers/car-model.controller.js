@@ -27,7 +27,7 @@ const getCarModel = async (request, response) => {
     if (response.headersSent) {
       console.log(error);
     } else {
-      ErrorHandler(new InternalServerError(response, 'internal server error', errorCodes.INTERNAL_SERVER_ERROR)); 
+      ErrorHandler.error(new InternalServerError(response, 'internal server error', errorCodes.INTERNAL_SERVER_ERROR));
     }
   }
 };

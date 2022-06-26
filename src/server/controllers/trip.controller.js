@@ -61,7 +61,7 @@ const getTrips = async (request, response) => {
     if (response.headersSent) {
       console.log(error);
     } else {
-      ErrorHandler(new InternalServerError(response, 'internal server error', errorCodes.INTERNAL_SERVER_ERROR)); 
+      ErrorHandler.error(new InternalServerError(response, 'internal server error', errorCodes.INTERNAL_SERVER_ERROR));
     }
   }
 };
@@ -75,7 +75,7 @@ const createTrip = async (request, response) => {
     response.send(toolkits.packageResponse(true, null));
   } catch (error) {
     await transaction.rollback();
-    ErrorHandler(new InternalServerError(response, 'internal server error', errorCodes.INTERNAL_SERVER_ERROR));
+    ErrorHandler.error(new InternalServerError(response, 'internal server error', errorCodes.INTERNAL_SERVER_ERROR));
   }
 };
 

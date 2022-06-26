@@ -18,7 +18,7 @@ const saveImage = (response, filename, string) => {
   fs.mkdirSync('./src/static/image/car/', { recursive: true });
   fs.writeFile(`./src/static/image/car/${filename}.jpg`, base64Data, 'base64', (error) => {
     if (error) {
-      ErrorHandler(new InternalServerError(response, 'internal server error', errorCodes.INTERNAL_SERVER_ERROR));
+      ErrorHandler.error(new InternalServerError(response, 'internal server error', errorCodes.INTERNAL_SERVER_ERROR));
     }
   });
 };

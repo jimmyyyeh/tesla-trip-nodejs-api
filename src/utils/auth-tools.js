@@ -24,14 +24,14 @@ const generateToken = (payload) => {
 
 const decryptToken = (response, token) => {
   if (!token.startsWith('Bearer')) {
-    ErrorHandler(new UnauthorizedError(response, 'token type invalidate', errorCodes.TOKEN_TYPE_INVALIDATE));
+    ErrorHandler.error(new UnauthorizedError(response, 'token type invalidate', errorCodes.TOKEN_TYPE_INVALIDATE));
   }
   const {
     payload,
     error
   } = jwt.verify(token.replace('Bearer ', ''), config.secretKey);
   if (error) {
-    ErrorHandler(new UnauthorizedError(response, 'token invalidate', errorCodes.TOKEN_INVALIDATE));
+    ErrorHandler.error(new UnauthorizedError(response, 'token invalidate', errorCodes.TOKEN_INVALIDATE));
   } else {
     return payload;
   }

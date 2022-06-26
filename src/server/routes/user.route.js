@@ -3,24 +3,58 @@ const validation = require('express-joi-validation');
 
 const controller = require('../controllers/user.controller');
 const payloadSchema = require('../../config/payload-schema');
+const {
+  MiddlewareError
+} = require('../../utils/errors');
 
 const router = express.Router();
 const validator = validation.createValidator({});
 
-router.post('/sign-in', validator.body(payloadSchema.signIn), controller.signIn);
+router.route('/sign-in')
+  .post(validator.body(payloadSchema.signIn), controller.signIn)
+  .all(
+    MiddlewareError.methodNotAllow,
+  );
 
-router.post('/sign-up', validator.body(payloadSchema.signUp), controller.signUp);
+router.route('/sign-up')
+  .post(validator.body(payloadSchema.signUp), controller.signUp)
+  .all(
+    MiddlewareError.methodNotAllow,
+  );
 
-router.post('/verify', validator.body(payloadSchema.verify), controller.verify);
+router.route('/verify')
+  .post(validator.body(payloadSchema.verify), controller.verify)
+  .all(
+    MiddlewareError.methodNotAllow,
+  );
 
-router.post('/resend-verify', validator.body(payloadSchema.resendVerify), controller.resendVerify);
+router.route('/resend-verify')
+  .post(validator.body(payloadSchema.resendVerify), controller.resendVerify)
+  .all(
+    MiddlewareError.methodNotAllow,
+  );
 
-router.post('/request-reset-password', validator.body(payloadSchema.requestResetPassword), controller.requestResetPassword);
+router.route('/request-reset-password')
+  .post(validator.body(payloadSchema.requestResetPassword), controller.requestResetPassword)
+  .all(
+    MiddlewareError.methodNotAllow,
+  );
 
-router.post('/reset-password', validator.body(payloadSchema.resetPassword), controller.resetPassword);
+router.route('/reset-password')
+  .post(validator.body(payloadSchema.resetPassword), controller.resetPassword)
+  .all(
+    MiddlewareError.methodNotAllow,
+  );
 
-router.get('/profile', controller.getProfile);
-
-router.put('/profile', validator.body(payloadSchema.updateProfile), controller.updateProfile);
+router.route('/profile')
+  .get(
+    controller.getProfile
+  )
+  .put(
+    validator.body(payloadSchema.updateProfile), controller.updateProfile
+  )
+  .all(
+    MiddlewareError.methodNotAllow,
+  );
 
 module.exports = { router };
