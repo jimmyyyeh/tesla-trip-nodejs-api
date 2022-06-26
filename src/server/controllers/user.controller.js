@@ -1,21 +1,26 @@
+const model = require('../models/models');
 const authTools = require('../../utils/auth-tools');
 const mailTools = require('../../utils/mail-tools');
 const redisTools = require('../../utils/redis-tools');
-const model = require('../models/models');
 const dbTools = require('../../utils/db-tools');
 const toolkits = require('../../utils/toolkits');
+const {
+  ErrorHandler,
+  UnauthorizedError,
+  InternalServerError,
+  ResourceConflictError
+} = require('../../utils/errors');
+const { errorCodes } = require('../../config/error-codes');
 
 const signIn = async (request, response) => {
   const transaction = await model.sequelize.transaction();
   try {
     const dbUser = await dbTools.getUserByUsername(request.body.username, transaction);
     if (!dbUser) {
-      response.send('user does not exist');
-      // TODO raise
+      ErrorHandler(new UnauthorizedError(response, 'user does not exist', errorCodes.USER_NOT_EXIST));
     }
     if (!authTools.decryptPwd(dbUser.password, request.body.password)) {
-      response.send('user invalidate');
-      // TODO raise
+      ErrorHandler(new UnauthorizedError(response, 'user invalidate', errorCodes.USER_INVALIDATE));
     }
     let results = {
       id: dbUser.id,
@@ -33,8 +38,11 @@ const signIn = async (request, response) => {
     results['token_type'] = 'bearer';
     response.send(toolkits.packageResponse(results, null));
   } catch (error) {
-    console.log(error);
-    // TODO raise
+    if (response.headersSent) {
+      console.log(error);
+    } else {
+      ErrorHandler(new InternalServerError(response, 'internal server error', errorCodes.INTERNAL_SERVER_ERROR));
+    }
   }
 };
 
@@ -58,29 +66,25 @@ const signUp = async (request, response) => {
       await mailTools.sendVerifyMail(dbUser.id, request.body.email);
       response.send(toolkits.packageResponse(results, null));
     } else {
-      response.send('user already exists');
-      // TODO raise
+      ErrorHandler(new ResourceConflictError(response, 'user already exist', errorCodes.USER_ALREADY_EXIST));
     }
     await transaction.commit();
   } catch (error) {
     await transaction.rollback();
-    console.log(error);
-    // TODO raise
+    ErrorHandler(new InternalServerError(response, 'internal server error', errorCodes.INTERNAL_SERVER_ERROR));
   }
 };
 
 const verify = async (request, response) => {
   const id = await redisTools.getVerifyToken(request.body.token);
   if (!id) {
-    response.send('token does not exist');
-    // TODO raise
+    ErrorHandler(new UnauthorizedError(response, 'token not exist', errorCodes.TOKEN_MISSING));
   }
   const transaction = await model.sequelize.transaction();
   try {
     const dbUser = await dbTools.getUserByID(id, transaction);
     if (!dbUser) {
-      response.send('user does not exist');
-      // TODO raise
+      ErrorHandler(new UnauthorizedError(response, 'user not exist', errorCodes.USER_NOT_EXIST));
     }
     const data = { is_verified: true };
     await dbUser.update(data, { transaction: transaction });
@@ -89,8 +93,7 @@ const verify = async (request, response) => {
     await transaction.commit();
   } catch (error) {
     await transaction.rollback();
-    console.log(error);
-    // TODO raise
+    ErrorHandler(new InternalServerError(response, 'internal server error', errorCodes.INTERNAL_SERVER_ERROR));
   }
 };
 
@@ -99,14 +102,16 @@ const resendVerify = async (request, response) => {
   try {
     const dbUser = await dbTools.getUserByUsername(request.body.username, transaction);
     if (!dbUser) {
-      response.send('user does not exist');
-      // TODO raise
+      ErrorHandler(new UnauthorizedError(response, 'user not exist', errorCodes.USER_NOT_EXIST));
     }
     await mailTools.sendVerifyMail(dbUser.id, dbUser.email);
     response.send(toolkits.packageResponse(true, null));
   } catch (error) {
-    console.log(error);
-    // TODO raise
+    if (response.headersSent) {
+      console.log(error);
+    } else {
+      ErrorHandler(new InternalServerError(response, 'internal server error', errorCodes.INTERNAL_SERVER_ERROR));
+    }
   }
 };
 
@@ -115,14 +120,16 @@ const requestResetPassword = async (request, response) => {
   try {
     const dbUser = await dbTools.getUserByEmail(request.body.email, transaction);
     if (!dbUser) {
-      response.send('user does not exist');
-      // TODO raise
+      ErrorHandler(new UnauthorizedError(response, 'user not exist', errorCodes.USER_NOT_EXIST));
     }
     await mailTools.sendResetPasswordMail(dbUser.id, dbUser.email);
     response.send(toolkits.packageResponse(true, null));
   } catch (error) {
-    console.log(error);
-    // TODO raise
+    if (response.headersSent) {
+      console.log(error);
+    } else {
+      ErrorHandler(new InternalServerError(response, 'internal server error', errorCodes.INTERNAL_SERVER_ERROR));
+    }
   }
 };
 
@@ -131,13 +138,11 @@ const resetPassword = async (request, response) => {
   try {
     const id = await redisTools.getResetPasswordToken(request.body.token);
     if (!id) {
-      response.send('token does not exist');
-      // TODO raise
+      ErrorHandler(new UnauthorizedError(response, 'token not exist', errorCodes.TOKEN_MISSING));
     }
     const dbUser = await dbTools.getUserByID(id, transaction);
     if (dbUser.username !== request.body.username) {
-      response.send('token invalidate');
-      // TODO raise
+      ErrorHandler(new UnauthorizedError(response, 'token invalidate', errorCodes.TOKEN_INVALIDATE));
     }
     const data = { password: authTools.encryptPwd(request.body.password) };
     await dbUser.update(data, { transaction: transaction });
@@ -145,18 +150,17 @@ const resetPassword = async (request, response) => {
     response.send(toolkits.packageResponse(true, null));
   } catch (error) {
     await transaction.rollback();
-    console.log(error);
-    // TODO raise
+    ErrorHandler(new InternalServerError(response, 'internal server error', errorCodes.INTERNAL_SERVER_ERROR));
   }
 };
 
 const getProfile = (request, response) => {
-  const user = authTools.decryptToken(request.headers.authorization);
+  const user = authTools.decryptToken(response, request.headers.authorization);
   response.send(user);
 };
 
 const updateProfile = async (request, response) => {
-  const user = authTools.decryptToken(request.headers.authorization);
+  const user = authTools.decryptToken(response, request.headers.authorization);
   const transaction = await model.sequelize.transaction();
   try {
     const dbUser = await dbTools.getUserByUsername(user.username, transaction);
@@ -184,8 +188,7 @@ const updateProfile = async (request, response) => {
     response.send(toolkits.packageResponse(results, null));
   } catch (error) {
     await transaction.rollback();
-    console.log(error);
-    // TODO raise
+    ErrorHandler(new InternalServerError(response, 'internal server error', errorCodes.INTERNAL_SERVER_ERROR));
   }
 };
 

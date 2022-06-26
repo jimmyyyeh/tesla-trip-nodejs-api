@@ -3,15 +3,20 @@ const dbTools = require('../../utils/db-tools');
 const model = require('../models/models');
 const { col } = require('sequelize');
 const toolkits = require('../../utils/toolkits');
+const {
+  ErrorHandler,
+  InternalServerError,
+  NotFoundError
+} = require('../../utils/errors');
+const { errorCodes } = require('../../config/error-codes');
 
 const updateTripRate = async (request, response) => {
-  const user = authTools.decryptToken(request.headers.authorization);
+  const user = authTools.decryptToken(response, request.headers.authorization);
   const transaction = await model.sequelize.transaction();
   try {
     const trip = await dbTools.getTrip(user.id, request.body.trip_id, transaction);
     if (!trip) {
-      // TODO raise
-      response.send('trip does not exist');
+      ErrorHandler(new NotFoundError(response, 'trip not exist', errorCodes.DATA_NOT_FOUND));
     }
     const tripRater = await dbTools.getUserByID(user.id, transaction);
     const tripAuthor = await dbTools.getUserByID(trip.user_id, transaction);
@@ -34,9 +39,8 @@ const updateTripRate = async (request, response) => {
     response.send(toolkits.packageResponse(true, null));
     await transaction.commit();
   } catch (error) {
-    console.log(error);
-    // TODO raise
     await transaction.rollback();
+    ErrorHandler(new InternalServerError(response, 'internal server error', errorCodes.INTERNAL_SERVER_ERROR));
   }
 };
 

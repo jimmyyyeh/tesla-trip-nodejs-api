@@ -1,4 +1,9 @@
 const fs = require('fs');
+const {
+  ErrorHandler,
+  InternalServerError
+} = require('./errors');
+const { errorCodes } = require('../config/error-codes');
 
 const dateToSeason = (date) => {
   const date_ = new Date(date);
@@ -8,13 +13,12 @@ const dateToSeason = (date) => {
   return `${year}Q${season}`;
 };
 
-const saveImage = (filename, string) => {
+const saveImage = (response, filename, string) => {
   const base64Data = string.replace(/^data:image\/(jpeg|jpg|png);base64,/, '');
   fs.mkdirSync('./src/static/image/car/', { recursive: true });
   fs.writeFile(`./src/static/image/car/${filename}.jpg`, base64Data, 'base64', (error) => {
     if (error) {
-      // TODO raise
-      console.log(error);
+      ErrorHandler(new InternalServerError(response, 'internal server error', errorCodes.INTERNAL_SERVER_ERROR));
     }
   });
 };
@@ -31,7 +35,7 @@ const makePager = (page, perPage, total) => {
 const packageResponse = (results, pager) => {
   if (typeof (results) === 'boolean') {
     return {
-      results: {success: results},
+      results: { success: results },
       pager: pager,
     };
   } else {

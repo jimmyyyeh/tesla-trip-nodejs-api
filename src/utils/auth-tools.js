@@ -1,6 +1,11 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { config } = require('../config/config');
+const {
+  ErrorHandler,
+  UnauthorizedError
+} = require('./errors');
+const { errorCodes } = require('../config/error-codes');
 
 const encryptPwd = (password) => {
   return bcrypt.hashSync(password, config.saltRounds);
@@ -17,19 +22,16 @@ const generateToken = (payload) => {
   }, config.secretKey);
 };
 
-const decryptToken = (token) => {
+const decryptToken = (response, token) => {
   if (!token.startsWith('Bearer')) {
-    // TODO raise
-    return null;
+    ErrorHandler(new UnauthorizedError(response, 'token type invalidate', errorCodes.TOKEN_TYPE_INVALIDATE));
   }
   const {
     payload,
     error
   } = jwt.verify(token.replace('Bearer ', ''), config.secretKey);
   if (error) {
-    // TODO raise
-    console.log(error);
-    return null;
+    ErrorHandler(new UnauthorizedError(response, 'token invalidate', errorCodes.TOKEN_INVALIDATE));
   } else {
     return payload;
   }

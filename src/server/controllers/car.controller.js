@@ -3,9 +3,16 @@ const dbTools = require('../../utils/db-tools');
 const constant = require('../../config/constant');
 const toolkits = require('../../utils/toolkits');
 const model = require('../models/models');
+const {
+  ErrorHandler,
+  InternalServerError,
+  BadRequestError,
+  NotFoundError
+} = require('../../utils/errors');
+const { errorCodes } = require('../../config/error-codes');
 
 const getCars = async (request, response) => {
-  const user = authTools.decryptToken(request.headers.authorization);
+  const user = authTools.decryptToken(response, request.headers.authorization);
   const transaction = await model.sequelize.transaction();
   const carID = request.params.carID;
   try {
@@ -24,18 +31,21 @@ const getCars = async (request, response) => {
     }
     response.send(toolkits.packageResponse(results, null));
   } catch (error) {
-    // TODO raise
-    console.log(error);
+    if (response.headersSent) {
+      console.log(error);
+    } else {
+      ErrorHandler(new InternalServerError(response, 'internal server error', errorCodes.INTERNAL_SERVER_ERROR)); 
+    }
   }
 };
 
 const createCar = async (request, response) => {
-  const user = authTools.decryptToken(request.headers.authorization);
+  const user = authTools.decryptToken(response, request.headers.authorization);
   const transaction = await model.sequelize.transaction();
   try {
     const carModel = await dbTools.getCarModel(request.body.model, request.body.spec, transaction);
     if (!carModel) {
-      // TODO raise
+      ErrorHandler(new BadRequestError(response, 'car model invalidate', errorCodes.REQUEST_DATA_ERROR));
     }
     const car = await dbTools.createCar(user.id, carModel.id, request.body, transaction);
     const results = {
@@ -47,30 +57,27 @@ const createCar = async (request, response) => {
       has_image: car.has_image
     };
     if (car.has_image) {
-      toolkits.saveImage(car.id, request.body.file);
+      toolkits.saveImage(response, car.id, request.body.file);
     }
     await transaction.commit();
     response.send(toolkits.packageResponse(results, null));
   } catch (error) {
     await transaction.rollback();
-    // TODO raise
-    console.log(error);
+    ErrorHandler(new InternalServerError(response, 'internal server error', errorCodes.INTERNAL_SERVER_ERROR));
   }
 };
 
 const updateCar = async (request, response) => {
-  const user = authTools.decryptToken(request.headers.authorization);
+  const user = authTools.decryptToken(response, request.headers.authorization);
   const transaction = await model.sequelize.transaction();
   try {
     const carModel = await dbTools.getCarModel(request.body.model, request.body.spec, transaction);
     if (!carModel) {
-      // TODO raise
-      response.send('car model does not exist');
+      ErrorHandler(new BadRequestError(response, 'car model invalidate', errorCodes.REQUEST_DATA_ERROR));
     }
     const car = await dbTools.getCar(user.id, carModel.id, transaction);
     if (!car) {
-      // TODO raise
-      response.send('car does not exist');
+      ErrorHandler(new NotFoundError(response, 'car not exist', errorCodes.DATA_NOT_FOUND));
     }
     const data = {
       car_model_id: carModel.id,
@@ -89,8 +96,7 @@ const updateCar = async (request, response) => {
     response.send(toolkits.packageResponse(results, null));
   } catch (error) {
     await transaction.rollback();
-    // TODO raise
-    console.log(error);
+    ErrorHandler(new InternalServerError(response, 'internal server error', errorCodes.INTERNAL_SERVER_ERROR));
   }
 };
 
@@ -109,7 +115,7 @@ const deductUserPoint = async (userID, point, transaction) => {
 };
 
 const deleteCar = async (request, response) => {
-  const user = authTools.decryptToken(request.headers.authorization);
+  const user = authTools.decryptToken(response, request.headers.authorization);
   const transaction = await model.sequelize.transaction();
   const carID = request.params.carID;
   try {
@@ -125,8 +131,7 @@ const deleteCar = async (request, response) => {
     response.send(toolkits.packageResponse(true, null));
   } catch (error) {
     await transaction.rollback();
-    // TODO raise
-    console.log(error);
+    ErrorHandler(new InternalServerError(response, 'internal server error', errorCodes.INTERNAL_SERVER_ERROR));
   }
 };
 
@@ -145,7 +150,7 @@ const getDeductPointInfo = async (userID, carID, transaction) => {
 };
 
 const getCarDeductPoint = async (request, response) => {
-  const user = authTools.decryptToken(request.headers.authorization);
+  const user = authTools.decryptToken(response, request.headers.authorization);
   const transaction = await model.sequelize.transaction();
   const carID = request.params.carID;
   try {
@@ -154,11 +159,14 @@ const getCarDeductPoint = async (request, response) => {
       tripRates
     } = await getDeductPointInfo(user.id, carID, transaction);
     const point = trips.length + tripRates.length * 2;
-    const results = {total: point};
+    const results = { total: point };
     response.send(toolkits.packageResponse(results, null));
   } catch (error) {
-    // TODO raise
-    console.log(error);
+    if (response.headersSent) {
+      console.log(error);
+    } else {
+      ErrorHandler(new InternalServerError(response, 'internal server error', errorCodes.INTERNAL_SERVER_ERROR)); 
+    }
   }
 
 };
