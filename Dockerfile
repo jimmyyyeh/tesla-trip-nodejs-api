@@ -10,4 +10,5 @@ RUN apt-get update
 RUN apt-get install -y vim
 
 # Prepare package
-RUN yarn global add express-generator nodemon eslint webpack
+RUN yarn global add express-generator nodemon eslint webpack typescript
+
